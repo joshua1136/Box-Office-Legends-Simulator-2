@@ -1,0 +1,4 @@
+[ai]
+required = true
+providers = ["openai"]
+description = "Box Magic uses ChatGPT to help players develop stronger movie story hooks."
