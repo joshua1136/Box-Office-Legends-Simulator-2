@@ -1,12 +1,18 @@
 // Real-world industry reference layer. Game outcomes are simulated and fictional.
 window.INDUSTRY_PEOPLE = {
  actors: [
-  {name:'Leonardo DiCaprio',role:'Actor',talent:96,popularity:96,genres:['Drama','Thriller','Crime'],fee:25000000},
-  {name:'Margot Robbie',role:'Actor',talent:94,popularity:95,genres:['Drama','Comedy','Action'],fee:22000000},
-  {name:'Tom Holland',role:'Actor',talent:88,popularity:97,genres:['Action','Adventure','Drama'],fee:18000000},
-  {name:'Zendaya',role:'Actor',talent:91,popularity:97,genres:['Drama','Romance','Sci-Fi'],fee:18000000},
-  {name:'Florence Pugh',role:'Actor',talent:93,popularity:91,genres:['Drama','Horror','Thriller'],fee:12000000},
-  {name:'Ryan Gosling',role:'Actor',talent:92,popularity:94,genres:['Drama','Comedy','Action'],fee:20000000}
+  {name:'Leonardo DiCaprio',role:'Actor',gender:'male',talent:96,popularity:96,genres:['Drama','Thriller','Crime'],fee:25000000},
+  {name:'Margot Robbie',role:'Actress',gender:'female',talent:94,popularity:95,genres:['Drama','Comedy','Action'],fee:22000000},
+  {name:'Tom Holland',role:'Actor',gender:'male',talent:88,popularity:97,genres:['Action','Adventure','Drama'],fee:18000000},
+  {name:'Zendaya',role:'Actress',gender:'female',talent:91,popularity:97,genres:['Drama','Romance','Sci-Fi'],fee:18000000},
+  {name:'Florence Pugh',role:'Actress',gender:'female',talent:93,popularity:91,genres:['Drama','Horror','Thriller'],fee:12000000},
+  {name:'Ryan Gosling',role:'Actor',gender:'male',talent:92,popularity:94,genres:['Drama','Comedy','Action'],fee:20000000},
+  {name:'Meryl Streep',role:'Actress',gender:'female',talent:99,popularity:94,genres:['Drama','Comedy'],fee:12000000},
+  {name:'Anne Hathaway',role:'Actress',gender:'female',talent:94,popularity:94,genres:['Drama','Comedy','Action'],fee:15000000},
+  {name:'Saoirse Ronan',role:'Actress',gender:'female',talent:96,popularity:88,genres:['Drama','Romance','Historical'],fee:10000000},
+  {name:'Anya Taylor-Joy',role:'Actress',gender:'female',talent:92,popularity:91,genres:['Drama','Horror','Thriller'],fee:10000000},
+  {name:'Emma Stone',role:'Actress',gender:'female',talent:95,popularity:95,genres:['Drama','Comedy','Romance'],fee:18000000},
+  {name:'Viola Davis',role:'Actress',gender:'female',talent:98,popularity:91,genres:['Drama','Thriller','Action'],fee:12000000}
  ],
  directors: [
   {name:'Christopher Nolan',role:'Director',talent:99,popularity:97,genres:['Drama','Thriller','Sci-Fi','Action'],fee:35000000},
