@@ -53,26 +53,26 @@ window.INDUSTRY_PEOPLE = {
  ]
 };
 window.INDUSTRY_STUDIOS = [
- {name:'Warner Bros. Pictures',type:'Major Studio',reputation:96},
- {name:'Universal Pictures',type:'Major Studio',reputation:96},
- {name:'Walt Disney Studios',type:'Major Studio',reputation:98},
- {name:'Paramount Pictures',type:'Major Studio',reputation:91},
- {name:'Sony Pictures',type:'Major Studio',reputation:92},
- {name:'Lionsgate',type:'Studio',reputation:84},
- {name:'A24',type:'Independent Studio',reputation:88},
- {name:'Amazon MGM Studios',type:'Major Studio',reputation:90},
- {name:'Apple Studios',type:'Streaming Studio',reputation:89},
- {name:'Legendary Entertainment',type:'Production Company',reputation:91},
- {name:'Skydance',type:'Production Company',reputation:89},
- {name:'Blumhouse Productions',type:'Production Company',reputation:86}
+ {name:'Warner Bros. Pictures',type:'Major Studio',reputation:96,capital:95,distribution:98,marketing:96,creative:62,genres:['Action','Drama','Sci-Fi','Thriller']},
+ {name:'Universal Pictures',type:'Major Studio',reputation:96,capital:96,distribution:99,marketing:97,creative:64,genres:['Action','Adventure','Horror','Comedy']},
+ {name:'Walt Disney Studios',type:'Major Studio',reputation:98,capital:99,distribution:99,marketing:99,creative:58,genres:['Animation','Adventure','Family','Fantasy']},
+ {name:'Paramount Pictures',type:'Major Studio',reputation:91,capital:88,distribution:92,marketing:90,creative:65,genres:['Action','Comedy','Drama','Franchise']},
+ {name:'Sony Pictures',type:'Major Studio',reputation:92,capital:89,distribution:94,marketing:92,creative:68,genres:['Action','Comedy','Drama','Thriller']},
+ {name:'Lionsgate',type:'Studio',reputation:84,capital:72,distribution:79,marketing:78,creative:73,genres:['Horror','Thriller','Action','Drama']},
+ {name:'A24',type:'Independent Studio',reputation:88,capital:52,distribution:61,marketing:67,creative:96,genres:['Drama','Horror','Comedy','Thriller']},
+ {name:'Amazon MGM Studios',type:'Major Studio',reputation:90,capital:94,distribution:88,marketing:91,creative:70,genres:['Drama','Action','Comedy','Thriller']},
+ {name:'Apple Studios',type:'Studio',reputation:89,capital:87,distribution:72,marketing:86,creative:82,genres:['Drama','Sci-Fi','Thriller','Prestige']},
+ {name:'Legendary Entertainment',type:'Production Company',reputation:91,capital:86,distribution:70,marketing:76,creative:78,genres:['Sci-Fi','Action','Fantasy','Adventure']},
+ {name:'Skydance',type:'Production Company',reputation:89,capital:84,distribution:74,marketing:80,creative:75,genres:['Action','Sci-Fi','Adventure']},
+ {name:'Blumhouse Productions',type:'Production Company',reputation:86,capital:60,distribution:66,marketing:72,creative:88,genres:['Horror','Thriller']}
 ];
 window.INDUSTRY_STREAMERS = [
- {name:'Netflix',focus:['Drama','Thriller','Comedy','Sci-Fi'],appetite:'Very High'},
- {name:'Disney+',focus:['Animation','Adventure','Family','Fantasy'],appetite:'High'},
- {name:'Max',focus:['Drama','Thriller','Crime','Prestige'],appetite:'High'},
- {name:'Hulu',focus:['Drama','Comedy','Thriller'],appetite:'Medium'},
- {name:'Prime Video',focus:['Action','Drama','Comedy','Thriller'],appetite:'High'},
- {name:'Apple TV+',focus:['Drama','Sci-Fi','Thriller','Prestige'],appetite:'Medium'},
- {name:'Paramount+',focus:['Action','Comedy','Drama','Franchise'],appetite:'Medium'},
- {name:'Peacock',focus:['Comedy','Thriller','Drama'],appetite:'Medium'}
+ {name:'Netflix',focus:['Drama','Thriller','Comedy','Sci-Fi','Animation'],appetite:'Very High',power:98,license:92,global:99},
+ {name:'Disney+',focus:['Animation','Adventure','Family','Fantasy'],appetite:'High',power:94,license:86,global:98},
+ {name:'Max',focus:['Drama','Thriller','Crime','Prestige'],appetite:'High',power:87,license:88,global:84},
+ {name:'Hulu',focus:['Drama','Comedy','Thriller'],appetite:'Medium',power:72,license:78,global:70},
+ {name:'Prime Video',focus:['Action','Drama','Comedy','Thriller'],appetite:'High',power:95,license:91,global:96},
+ {name:'Apple TV+',focus:['Drama','Sci-Fi','Thriller','Prestige'],appetite:'Medium',power:83,license:87,global:89},
+ {name:'Paramount+',focus:['Action','Comedy','Drama','Franchise'],appetite:'Medium',power:76,license:80,global:76},
+ {name:'Peacock',focus:['Comedy','Thriller','Drama'],appetite:'Medium',power:67,license:74,global:68}
 ];
