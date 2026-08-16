@@ -26,6 +26,8 @@
   function movie(){
     const candidates=[window.currentMovie,window.activeMovie,window.selectedMovie,window.movieInProgress].filter(Boolean);
     if(candidates[0]) return candidates[0];
+    const state=window.__BOL_STATE__;
+    if(state?.films?.length) return state.films.find(f=>f.stage!=='completed')||state.films[0];
     try{const p=JSON.parse(localStorage.getItem('bols2_current_movie')||'null'); if(p)return p}catch{}
     return null;
   }
@@ -41,7 +43,7 @@
   .bols2-biz *{box-sizing:border-box}.bols2-biz h2,.bols2-biz h3{margin:0}.bols2-biz .eyebrow{font-size:11px;letter-spacing:.16em;text-transform:uppercase;opacity:.55}.bols2-biz .hero{display:flex;gap:14px;align-items:center}.bols2-biz .poster{width:76px;height:108px;border-radius:10px;object-fit:cover;background:#222;flex:none}.bols2-biz .poster.empty{display:grid;place-items:center;font-size:28px}.bols2-biz .stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:14px}.bols2-biz .stat{padding:13px;border-radius:15px;background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.08)}.bols2-biz .stat b{display:block;font-size:21px;margin-top:4px}.bols2-biz .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:12px}.bols2-biz .card{padding:13px;border-radius:16px;background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.08)}.bols2-biz .row{display:flex;justify-content:space-between;gap:10px;align-items:center}.bols2-biz .muted{opacity:.62;font-size:12px}.bols2-biz button{border:0;border-radius:12px;padding:10px 12px;background:#fff;color:#111;font-weight:800;cursor:pointer}.bols2-biz button.alt{background:rgba(255,255,255,.09);color:#fff}.bols2-biz .partner-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:10px}.bols2-biz .partner{padding:12px;border:1px solid rgba(255,255,255,.08);border-radius:14px}.bols2-biz .pill{display:inline-block;font-size:10px;padding:4px 7px;border-radius:99px;background:rgba(255,255,255,.08);margin-top:5px}.bols2-biz .modal{position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,.76);display:flex;align-items:center;justify-content:center;padding:14px}.bols2-biz .modalbox{width:min(720px,100%);max-height:90vh;overflow:auto;background:#101117;border:1px solid rgba(255,255,255,.14);border-radius:24px;padding:18px}.bols2-biz .seal{width:74px;height:74px;border-radius:50%;border:2px dashed rgba(255,255,255,.45);display:grid;place-items:center;text-align:center;font-size:10px;font-weight:900;padding:7px}.bols2-biz .stamp{display:inline-block;padding:9px 13px;border:3px solid #fff;border-radius:8px;transform:rotate(-5deg);font-weight:1000;letter-spacing:.08em;animation:bolsStamp .5s cubic-bezier(.2,1.5,.4,1)}@keyframes bolsStamp{0%{transform:scale(2.5) rotate(-12deg);opacity:0}70%{transform:scale(.92) rotate(-4deg);opacity:1}100%{transform:scale(1) rotate(-5deg)}}
   @media(max-width:560px){.bols2-biz .grid,.bols2-biz .partner-list{grid-template-columns:1fr}.bols2-biz .hero{align-items:flex-start}.bols2-biz .poster{width:64px;height:92px}}
   `;document.head.appendChild(s)}
-  function mount(){
+  function mount(mountTarget){
     css(); if(document.getElementById('bols2-big-industry'))return;
     const host=document.createElement('section');host.id='bols2-big-industry';host.className='bols2-biz';
     const m=movie()||{};const [lo,hi]=projected(m);const d=load();
@@ -50,8 +52,8 @@
     host.innerHTML=`<div class="eyebrow">Movie Business · Industry</div><div class="hero"><div class="poster ${p?'':'empty'}">${p?`<img class="poster" src="${p}" alt="${title(m)} poster">`:'🎬'}</div><div><h2>${title(m)}</h2><div class="muted">${emoji[genre(m)]||'🎬'} ${genre(m)} · Commercial Life</div></div></div>
     <div class="stats"><div class="stat"><span class="muted">🍿 BOX OFFICE</span><b>${money(lo)}–${money(hi)}</b><span class="muted">Projected worldwide gross</span></div><div class="stat"><span class="muted">📺 STREAMS</span><b>${Number(streams.views||0).toLocaleString()}M</b><span class="muted">${streams.status==='Not Yet Streaming'?'Not Yet Streaming':streams.platform}</span></div></div>
     <div class="grid"><div class="card"><div class="row"><b>🤝 Partners</b><span class="pill">Real industry</span></div><p class="muted">Choose studios and production partners instead of being locked to one company.</p><button data-open="partners">Choose Partner</button></div><div class="card"><div class="row"><b>📦 Distribution</b><span class="pill">Rights</span></div><p class="muted">Build theatrical and territorial distribution deals for this movie.</p><button class="alt" data-open="distribution">Plan Distribution</button></div><div class="card"><div class="row"><b>📺 Streams</b><span class="pill">Bidding</span></div><p class="muted">Put finished films into streaming bids and compare platform offers.</p><button data-open="streams">Open Streams</button></div><div class="card"><div class="row"><b>📜 Contracts</b><span class="pill">Records</span></div><p class="muted">Keep co-production, distribution and streaming agreements attached to the movie.</p><button class="alt" data-open="contracts">View Contracts</button></div></div>`;
-    const target=[...document.querySelectorAll('h1,h2,h3,h4')].find(x=>/industry/i.test(x.textContent||''));
-    if(target) target.closest('section,div')?.after(host); else document.body.appendChild(host);
+    const hostTarget=mountTarget||[...document.querySelectorAll('.dashSectionModal .sectionBody')].find(Boolean);
+    if(hostTarget) hostTarget.prepend(host);
     host.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;openPanel(b.dataset.open,m)})
   }
   function openPanel(type,m){const old=document.getElementById('bols2-biz-modal');if(old)old.remove();const modal=document.createElement('div');modal.id='bols2-biz-modal';modal.className='bols2-biz modal';let body='';
@@ -62,6 +64,13 @@
     modal.innerHTML=`<div class="modalbox"><div class="row"><div></div><button class="alt" data-close>Close</button></div>${body}</div>`;document.body.appendChild(modal);modal.addEventListener('click',e=>{if(e.target===modal||e.target.closest('[data-close]'))modal.remove();const p=e.target.closest('[data-pick]');if(p){const partner=realPartners[Number(p.dataset.pick)];showContract(partner,m)}const bid=e.target.closest('[data-bid]');if(bid){showContract({name:bid.dataset.bid,kind:'Streaming Platform',offer:Number(bid.dataset.offer)},m)}})
   }
   function showContract(partner,m){const modal=document.getElementById('bols2-biz-modal');if(!modal)return;modal.querySelector('.modalbox').innerHTML=`<div class="eyebrow">Contract Room</div><div class="row"><div><h2>${partner.kind==='Streaming Platform'?'📺 STREAMING':'🤝 CO-PRODUCTION'} AGREEMENT</h2><div class="muted">${title(m)}</div></div><div class="seal">${partner.name.split(' ').slice(0,2).map(x=>x[0]).join('')}<br>SEAL</div></div><div class="card" style="margin-top:14px"><b>JoshuaX Studios × ${partner.name}</b><p class="muted">Fictionalized gameplay contract · Terms can be negotiated.</p><div class="row"><span>Offer / Investment</span><b>${partner.offer?money(partner.offer):'$'+(Math.max(5,budget(m)*.45)).toFixed(1)+'M'}</b></div><div class="row"><span>Your share</span><b>55%</b></div><div class="row"><span>Partner share</span><b>45%</b></div><div class="row"><span>Energy to sign</span><b>⚡ 5</b></div></div><div style="display:flex;gap:12px;align-items:center;justify-content:center;margin-top:18px"><div class="seal">JX<br>STUDIOS</div><div style="font-size:28px">×</div><div class="seal">${partner.name.split(' ').slice(0,2).map(x=>x[0]).join('')}<br>STUDIO</div></div><div style="text-align:center;margin-top:18px"><button data-sign>✍️ SIGN & EXECUTE · 5 ⚡</button></div>`;modal.querySelector('[data-sign]').addEventListener('click',()=>{const d=load();d[title(m)]={...(d[title(m)]||{}),platform:partner.name,deal:partner.offer||0,status:'ACTIVE CONTRACT',views:d[title(m)]?.views||0};save(d);modal.querySelector('.modalbox').innerHTML+=`<div style="text-align:center;margin-top:18px"><span class="stamp">AGREEMENT EXECUTED</span><p><b>${partner.name}</b> is now attached to this movie.</p></div>`})}
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(mount,250));else setTimeout(mount,250);
+  document.addEventListener('click',ev=>{
+    const btn=ev.target.closest?.('[data-section="INDUSTRY"]');
+    if(!btn)return;
+    setTimeout(()=>{
+      const body=document.querySelector('.dashSectionModal .sectionBody');
+      if(body)mount(body);
+    },80);
+  },true);
   window.BOLS2Industry={mount,openPanel};
 })();
