@@ -1,21 +1,26 @@
-// Character Development UI helper. Loaded by main.js when available.
-window.initConceptCharacters = function(state, film, render) {
-  const open = document.getElementById('addConceptCharacter');
-  const editor = document.getElementById('characterEditor');
-  const save = document.getElementById('saveConceptCharacter');
-  if (!open || !editor || !save) return;
-  film.characters = film.characters || [];
-  let position = 'Lead';
-  open.onclick = () => { editor.hidden = false; document.getElementById('characterNameInput')?.focus(); };
-  document.querySelectorAll('[data-char-position]').forEach(b => b.onclick = () => {
-    position = b.dataset.charPosition;
-    document.querySelectorAll('[data-char-position]').forEach(x => x.classList.toggle('chosen', x===b));
-  });
-  save.onclick = () => {
-    const name = document.getElementById('characterNameInput')?.value.trim();
-    if (!name) return;
-    film.characters.push({id:Date.now(),name,position,gender:document.getElementById('characterGenderInput')?.value||'Male',type:document.getElementById('characterTypeInput')?.value||'Protagonist',brief:document.getElementById('characterBriefInput')?.value.trim()||'',arcStrength:70+Math.floor(Math.random()*26)});
-    editor.hidden = true;
-    render();
+// Character Development UI helper. Visual card-based editor for concept making.
+(function(){
+  const css=`
+  .characterConceptBox{margin-top:22px;padding:22px;border:1px solid rgba(212,175,55,.28);border-radius:20px;background:linear-gradient(145deg,rgba(28,25,18,.98),rgba(13,13,14,.98));box-shadow:0 18px 50px rgba(0,0,0,.28)}
+  .characterConceptHead{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:8px}.characterConceptHead small{color:#d8b34a;letter-spacing:.16em;font-weight:800}.characterConceptHead h3{margin:5px 0 0;font-size:22px}.characterConceptHead span{font-size:11px;color:#c9b778;border:1px solid rgba(212,175,55,.3);padding:7px 10px;border-radius:999px}
+  .conceptCharacterList{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px;margin:18px 0}.conceptCharacterEmpty{min-height:130px;display:grid;place-items:center;text-align:center;border:1px dashed rgba(255,255,255,.16);border-radius:16px;color:#888;padding:20px}.characterCard{position:relative;padding:18px;border-radius:17px;background:linear-gradient(160deg,#24201a,#151515);border:1px solid rgba(255,255,255,.09);overflow:hidden}.characterCard:before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:#d4af37}.characterAvatar{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;background:rgba(212,175,55,.12);font-size:23px;margin-bottom:12px}.characterCard h4{margin:0 0 6px;font-size:18px}.charTags{display:flex;flex-wrap:wrap;gap:6px}.charTag{font-size:10px;padding:5px 8px;border-radius:999px;background:rgba(255,255,255,.07);color:#ddd}.charStats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}.charStat{padding:9px;border-radius:10px;background:rgba(0,0,0,.2)}.charStat small{display:block;color:#888;font-size:9px}.charStat b{font-size:14px}.charArc{margin-top:13px}.charArcTop{display:flex;justify-content:space-between;font-size:10px;color:#aaa}.charArcBar{height:6px;background:#292929;border-radius:9px;overflow:hidden;margin-top:5px}.charArcBar i{display:block;height:100%;background:linear-gradient(90deg,#9d7b22,#f2d26a);border-radius:9px}
+  .characterEditor{margin-top:16px;padding:18px;border-radius:16px;background:#111;border:1px solid rgba(212,175,55,.24)}.characterEditorTitle{font-size:12px;font-weight:900;letter-spacing:.14em;color:#d8b34a;margin-bottom:12px}.characterChoices{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin:10px 0}.characterChoices button{border:1px solid rgba(255,255,255,.1);background:#1d1d1d;color:#ddd;border-radius:10px;padding:10px 6px;font-weight:700;font-size:11px}.characterChoices button.chosen{border-color:#d4af37;background:rgba(212,175,55,.12);color:#f2d26a}.characterEditor .textInput{width:100%;box-sizing:border-box;margin:7px 0;padding:11px 12px;border-radius:10px;border:1px solid rgba(255,255,255,.12);background:#1a1a1a;color:#fff}.characterEditor textarea{min-height:90px;resize:vertical}.characterBrief{color:#aaa;font-size:11px;line-height:1.45;margin-top:10px}
+  .characterAdd{width:100%;min-height:76px;border:1px dashed rgba(212,175,55,.38);border-radius:16px;background:rgba(212,175,55,.04);color:#e7d27b;font-weight:900;font-size:13px;cursor:pointer}.characterAdd:hover{background:rgba(212,175,55,.1)}
+  @media(max-width:650px){.characterChoices{grid-template-columns:1fr 1fr}.characterConceptHead{align-items:flex-start;flex-direction:column}}
+  `;
+  const style=document.createElement('style');style.textContent=css;document.head.appendChild(style);
+
+  window.initConceptCharacters=function(state,film,render){
+    const open=document.getElementById('addConceptCharacter'),editor=document.getElementById('characterEditor'),save=document.getElementById('saveConceptCharacter'),list=document.getElementById('conceptCharacterList'),count=document.getElementById('characterCount');
+    if(!open||!editor||!save||!list)return;
+    film.characters=film.characters||[];let position='Lead';
+    function draw(){
+      if(count)count.textContent=`${film.characters.length} CHARACTER${film.characters.length===1?'':'S'}`;
+      list.innerHTML=film.characters.length?film.characters.map(c=>`<article class="characterCard"><div class="characterAvatar">${c.gender==='Female'?'👩':'👤'}</div><h4>${esc(c.name)}</h4><div class="charTags"><span class="charTag">${esc(c.position)}</span><span class="charTag">${esc(c.gender)}</span><span class="charTag">${esc(c.type)}</span></div><div class="charStats"><div class="charStat"><small>IMPORTANCE</small><b>${esc(c.position)}</b></div><div class="charStat"><small>ARC POTENTIAL</small><b>${c.arcStrength||70}/100</b></div></div><div class="charArc"><div class="charArcTop"><span>Character Arc</span><span>${c.arcStrength||70}%</span></div><div class="charArcBar"><i style="width:${c.arcStrength||70}%"></i></div></div>${c.brief?`<div class="characterBrief">${esc(c.brief)}</div>`:''}</article>`).join(''):'<div class="conceptCharacterEmpty"><div><div style="font-size:28px">🎭</div><b>No characters yet</b><br><span>Build your characters before casting them.</span></div></div>';
+    }
+    open.classList.add('characterAdd');open.textContent='➕  ADD CHARACTER';open.onclick=()=>{editor.hidden=false;document.getElementById('characterNameInput')?.focus()};
+    document.querySelectorAll('[data-char-position]').forEach(b=>b.onclick=()=>{position=b.dataset.charPosition;document.querySelectorAll('[data-char-position]').forEach(x=>x.classList.toggle('chosen',x===b))});
+    save.onclick=()=>{const name=document.getElementById('characterNameInput')?.value.trim();if(!name)return;film.characters.push({id:Date.now(),name,position,gender:document.getElementById('characterGenderInput')?.value||'Male',type:document.getElementById('characterTypeInput')?.value||'Protagonist',brief:document.getElementById('characterBriefInput')?.value.trim()||'',arcStrength:70+Math.floor(Math.random()*26)});editor.hidden=true;draw();if(typeof render==='function')render()};
+    draw();
   };
-};
+})();
