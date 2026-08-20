@@ -31,7 +31,10 @@ function festivalSelectionOdds(f,festival,state){
 function festivalCandidates(state){return [...(state.films||[]),...(state.filmography||[])].filter(festivalReady)}
 function festivalSubmit(state,festivalId,filmId,year){
   festivalState(state);const festival=festivalById(festivalId);const film=festivalCandidates(state).find(f=>String(f.id)===String(filmId));if(!festival||!film)return toast('That festival submission is no longer available.');
-  const targetYear=Number(year||state.year||1),key=festivalKey(targetYear,festivalId);if(state.festivals.seasons[key])return toast('This festival season has already been decided.');
+  const currentYear=Number(state.year||1),currentWeek=Number(state.week||1),targetYear=Number(year||currentYear),deadline=Math.max(1,festival.week-6),key=festivalKey(targetYear,festivalId);
+  if(targetYear<currentYear || (targetYear===currentYear && currentWeek>deadline))return toast('Submission deadline has passed. This festival is no longer accepting entries.');
+  if(targetYear===currentYear && currentWeek===deadline){};
+  if(state.festivals.seasons[key])return toast('This festival season has already been decided.');
   if(state.festivals.submissions.some(s=>s.year===targetYear&&s.festivalId===festivalId&&String(s.filmId)===String(filmId)))return toast('This film is already submitted.');
   if(Number(state.money)<festival.fee)return toast('Not enough cash for the festival submission fee.');
   state.money-=festival.fee;film.festivalCampaign=Math.min(100,Number(film.festivalCampaign||0)+12);state.transactions=state.transactions||[];state.transactions.push({week:state.week,year:state.year,type:'festival',amount:-festival.fee,description:film.title+' submission to '+festival.name});
