@@ -170,28 +170,42 @@ function showSequelLab(state,parent){
   e.querySelector('#createNewCharacter').onclick=createCharacter;
   refresh();
 
-  e.querySelector('#greenlightSequel').onclick=()=>{
-    title=e.querySelector('#sequelTitle').value.trim();
-    if(!title)return toast('Give the sequel a title first.');
-    if(!spendEnergy(state,25,'greenlighting a sequel'))return;
-    const returning=[...e.querySelectorAll('[data-return-char]:checked')].map(x=>inherited[+x.dataset.returnChar]).filter(Boolean).map(c=>({...c}));
-    const characters=[...returning,...newChars.map(c=>({...c}))];
-    const sequel={
-      id:Date.now(),title,genre:parent.genre,genreEmoji:parent.genreEmoji,tone:parent.tone||'Emotional',
-      storyHook:`The next chapter of ${parent.title}.`,franchiseStrategy:'Sequel',sequelOf:parent.id,sequelNumber:number,
-      sequelType,storyDirection:direction,originalFilmId:parent.id,originalFilmTitle:parent.title,
-      originalFilmQuality:Number(parent.quality||50),originalAudience:Number(parent.audience||50),budget,
-      stage:'development',stageWeek:1,totalWeeks:4,quality:Math.max(45,Math.min(80,Math.round(Number(parent.quality||50)*.72+12))),
-      audience:Math.max(45,Math.min(88,Math.round(Number(parent.audience||50)*.78+12))),story:Math.max(45,Math.min(80,Math.round(Number(parent.story||50)*.72+12))),
-      direction:50,acting:50,visuals:50,music:50,vfx:50,crew:{},characters,poster:null,
-      concept:{originality:Math.max(35,Number(parent.concept?.originality||55)-8),appeal:Math.min(99,Number(parent.concept?.appeal||65)+5),commercialPotential:Math.min(99,Number(parent.concept?.commercialPotential||65)+8),franchisePotential:Math.min(99,Number(parent.concept?.franchisePotential||70)+10)},
-      createdWeek:state.week,createdYear:state.year,spent:0,marketingBudget:0,revenue:0,boxOffice:0,streamingRevenue:0,releasedWeek:null,releaseDate:null,
-      history:[{week:state.week,year:state.year,event:`Film #${number} greenlit`,detail:`${title} · ${sequelType} · ${direction} direction · ${characters.length} character${characters.length===1?'':'s'} (${returning.length} returning, ${newChars.length} new).`}]
-    };
-    state.films=state.films||[];state.films.push(sequel);
-    parent.history=parent.history||[];parent.history.push({week:state.week,year:state.year,event:`Film #${number} greenlit`,detail:`${title} · ${sequelType} · ${direction} direction.`});
-    state.news=state.news||[];state.news.unshift({week:state.week,year:state.year,scope:'studio',type:'sequel',filmId:sequel.id,film:sequel.title,title:`🎞️ ${state.studioName} greenlights ${sequel.title}`,body:`The studio is returning to ${parent.title}. Film #${number} will bring ${returning.length} returning character${returning.length===1?'':'s'} back and introduce ${newChars.length} new character${newChars.length===1?'':'s'}.`,category:'production',storyKey:`sequel-greenlit:${sequel.id}`});
-    saveCurrent(state,true);e.remove();start(state);toast(`${title} entered development as Film #${number}. −25 Energy`);
+  const greenlightButton=e.querySelector('#greenlightSequel');
+  if(greenlightButton)greenlightButton.onclick=(ev)=>{
+    ev.preventDefault();
+    ev.stopPropagation();
+    try{
+      title=e.querySelector('#sequelTitle')?.value.trim()||'';
+      if(!title){e.querySelector('#sequelTitle')?.focus();toast('TITLE REQUIRED · Give the sequel a title before greenlighting it.');return;}
+      if(!spendEnergy(state,25,'greenlighting a sequel'))return;
+      greenlightButton.disabled=true;
+      greenlightButton.textContent='GREENLIGHTING…';
+      const returning=[...e.querySelectorAll('[data-return-char]:checked')].map(x=>inherited[+x.dataset.returnChar]).filter(Boolean).map(c=>({...c}));
+      const characters=[...returning,...newChars.map(c=>({...c}))];
+      const sequel={
+        id:Date.now(),title,genre:parent.genre,genreEmoji:parent.genreEmoji,tone:parent.tone||'Emotional',
+        storyHook:`The next chapter of ${parent.title}.`,franchiseStrategy:'Sequel',sequelOf:parent.id,sequelNumber:number,
+        sequelType,storyDirection:direction,originalFilmId:parent.id,originalFilmTitle:parent.title,
+        originalFilmQuality:Number(parent.quality||50),originalAudience:Number(parent.audience||50),budget,
+        stage:'development',stageWeek:1,totalWeeks:4,quality:Math.max(45,Math.min(80,Math.round(Number(parent.quality||50)*.72+12))),
+        audience:Math.max(45,Math.min(88,Math.round(Number(parent.audience||50)*.78+12))),story:Math.max(45,Math.min(80,Math.round(Number(parent.story||50)*.72+12))),
+        direction:50,acting:50,visuals:50,music:50,vfx:50,crew:{},characters,poster:null,
+        concept:{originality:Math.max(35,Number(parent.concept?.originality||55)-8),appeal:Math.min(99,Number(parent.concept?.appeal||65)+5),commercialPotential:Math.min(99,Number(parent.concept?.commercialPotential||65)+8),franchisePotential:Math.min(99,Number(parent.concept?.franchisePotential||70)+10)},
+        createdWeek:state.week,createdYear:state.year,spent:0,marketingBudget:0,revenue:0,boxOffice:0,streamingRevenue:0,releasedWeek:null,releaseDate:null,
+        history:[{week:state.week,year:state.year,event:`Film #${number} greenlit`,detail:`${title} · ${sequelType} · ${direction} direction · ${characters.length} character${characters.length===1?'':'s'} (${returning.length} returning, ${newChars.length} new).`}]
+      };
+      state.films=state.films||[];state.films.push(sequel);
+      parent.history=parent.history||[];parent.history.push({week:state.week,year:state.year,event:`Film #${number} greenlit`,detail:`${title} · ${sequelType} · ${direction} direction.`});
+      state.news=state.news||[];state.news.unshift({week:state.week,year:state.year,scope:'studio',type:'sequel',filmId:sequel.id,film:sequel.title,title:`🎞️ ${state.studioName} greenlights ${sequel.title}`,body:`The studio is returning to ${parent.title}. Film #${number} will bring ${returning.length} returning character${returning.length===1?'':'s'} back and introduce ${newChars.length} new character${newChars.length===1?'':'s'}.`,category:'production',storyKey:`sequel-greenlit:${sequel.id}`});
+      saveCurrent(state,true);
+      e.remove();
+      start(state);
+      toast(`${title} entered development as Film #${number}. −25 Energy`);
+    }catch(err){
+      console.error('Sequel greenlight failed',err);
+      if(greenlightButton){greenlightButton.disabled=false;greenlightButton.textContent='GREENLIGHT SEQUEL · 25 ⚡ →';}
+      toast('Could not greenlight the sequel. Nothing was lost — please try again.');
+    }
   };
 }
 window.showSequelLab=showSequelLab;
