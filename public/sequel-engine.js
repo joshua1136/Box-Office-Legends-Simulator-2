@@ -110,7 +110,7 @@ function showSequelLab(state,parent){
         <div><small>SERIES POSITION</small><b>FILM #${number}</b><span>${escS(parent.title)} → ${title||'Untitled sequel'}</span></div>
       </section>
     </div>
-    <footer class="sequelFooter"><div><small>NEXT</small><b>Development & Writing</b><span>New screenplay · returning characters · new production</span></div><button class="menuBtn primary" id="greenlightSequel">GREENLIGHT SEQUEL · 25 ⚡ →</button></footer>
+    <footer class="sequelFooter"><div><small>NEXT</small><b>Development & Writing</b><span>New screenplay · returning characters · new production</span></div><button type="button" class="menuBtn primary sequelAction" id="greenlightSequel">GREENLIGHT SEQUEL · 25 ⚡ →</button></footer>
   </div>`;
 
   document.body.appendChild(e);
@@ -171,42 +171,36 @@ function showSequelLab(state,parent){
   refresh();
 
   const greenlightButton=e.querySelector('#greenlightSequel');
-  if(greenlightButton)greenlightButton.onclick=(ev)=>{
-    ev.preventDefault();
-    ev.stopPropagation();
+  const greenlightSequel=()=>{
+    if(!greenlightButton||greenlightButton.dataset.processing==='1')return;
+    const liveState=window.__BOL_STATE__||state;
     try{
-      title=e.querySelector('#sequelTitle')?.value.trim()||'';
+      title=String(e.querySelector('#sequelTitle')?.value||'').trim();
       if(!title){e.querySelector('#sequelTitle')?.focus();toast('TITLE REQUIRED · Give the sequel a title before greenlighting it.');return;}
-      if(!spendEnergy(state,25,'greenlighting a sequel'))return;
+      const energy=Number(liveState.energy);
+      if(!Number.isFinite(energy)||energy<25){toast('Your energy is too low! Greenlighting a sequel requires 25 ⚡.');return;}
+      greenlightButton.dataset.processing='1';
       greenlightButton.disabled=true;
       greenlightButton.textContent='GREENLIGHTING…';
-      const returning=[...e.querySelectorAll('[data-return-char]:checked')].map(x=>inherited[+x.dataset.returnChar]).filter(Boolean).map(c=>({...c}));
+      liveState.energy=energy-25;
+      const returning=[...e.querySelectorAll('[data-return-char]:checked')].map(x=>inherited[Number(x.dataset.returnChar)]).filter(Boolean).map(c=>({...c}));
       const characters=[...returning,...newChars.map(c=>({...c}))];
-      const sequel={
-        id:Date.now(),title,genre:parent.genre,genreEmoji:parent.genreEmoji,tone:parent.tone||'Emotional',
-        storyHook:`The next chapter of ${parent.title}.`,franchiseStrategy:'Sequel',sequelOf:parent.id,sequelNumber:number,
-        sequelType,storyDirection:direction,originalFilmId:parent.id,originalFilmTitle:parent.title,
-        originalFilmQuality:Number(parent.quality||50),originalAudience:Number(parent.audience||50),budget,
-        stage:'development',stageWeek:1,totalWeeks:4,quality:Math.max(45,Math.min(80,Math.round(Number(parent.quality||50)*.72+12))),
-        audience:Math.max(45,Math.min(88,Math.round(Number(parent.audience||50)*.78+12))),story:Math.max(45,Math.min(80,Math.round(Number(parent.story||50)*.72+12))),
-        direction:50,acting:50,visuals:50,music:50,vfx:50,crew:{},characters,poster:null,
-        concept:{originality:Math.max(35,Number(parent.concept?.originality||55)-8),appeal:Math.min(99,Number(parent.concept?.appeal||65)+5),commercialPotential:Math.min(99,Number(parent.concept?.commercialPotential||65)+8),franchisePotential:Math.min(99,Number(parent.concept?.franchisePotential||70)+10)},
-        createdWeek:state.week,createdYear:state.year,spent:0,marketingBudget:0,revenue:0,boxOffice:0,streamingRevenue:0,releasedWeek:null,releaseDate:null,
-        history:[{week:state.week,year:state.year,event:`Film #${number} greenlit`,detail:`${title} · ${sequelType} · ${direction} direction · ${characters.length} character${characters.length===1?'':'s'} (${returning.length} returning, ${newChars.length} new).`}]
-      };
-      state.films=state.films||[];state.films.push(sequel);
-      parent.history=parent.history||[];parent.history.push({week:state.week,year:state.year,event:`Film #${number} greenlit`,detail:`${title} · ${sequelType} · ${direction} direction.`});
-      state.news=state.news||[];state.news.unshift({week:state.week,year:state.year,scope:'studio',type:'sequel',filmId:sequel.id,film:sequel.title,title:`🎞️ ${state.studioName} greenlights ${sequel.title}`,body:`The studio is returning to ${parent.title}. Film #${number} will bring ${returning.length} returning character${returning.length===1?'':'s'} back and introduce ${newChars.length} new character${newChars.length===1?'':'s'}.`,category:'production',storyKey:`sequel-greenlit:${sequel.id}`});
-      saveCurrent(state,true);
+      const sequelId=Date.now();
+      const sequel={id:sequelId,title,genre:parent.genre,genreEmoji:parent.genreEmoji,tone:parent.tone||'Emotional',storyHook:`The next chapter of ${parent.title}.`,franchiseStrategy:'Sequel',sequelOf:parent.id,sequelNumber:number,sequelType,storyDirection:direction,originalFilmId:parent.id,originalFilmTitle:parent.title,originalFilmQuality:Number(parent.quality||50),originalAudience:Number(parent.audience||50),budget,stage:'development',stageWeek:1,totalWeeks:4,quality:Math.max(45,Math.min(80,Math.round(Number(parent.quality||50)*.72+12))),audience:Math.max(45,Math.min(88,Math.round(Number(parent.audience||50)*.78+12))),story:Math.max(45,Math.min(80,Math.round(Number(parent.story||50)*.72+12))),direction:50,acting:50,visuals:50,music:50,vfx:50,crew:{},characters,poster:null,concept:{originality:Math.max(35,Number(parent.concept?.originality||55)-8),appeal:Math.min(99,Number(parent.concept?.appeal||65)+5),commercialPotential:Math.min(99,Number(parent.concept?.commercialPotential||65)+8),franchisePotential:Math.min(99,Number(parent.concept?.franchisePotential||70)+10)},createdWeek:liveState.week,createdYear:liveState.year,spent:0,marketingBudget:0,revenue:0,boxOffice:0,streamingRevenue:0,releasedWeek:null,releaseDate:null,history:[{week:liveState.week,year:liveState.year,event:`Film #${number} greenlit`,detail:`${title} · ${sequelType} · ${direction} direction · ${characters.length} character${characters.length===1?'':'s'} (${returning.length} returning, ${newChars.length} new).`}]};
+      liveState.films=Array.isArray(liveState.films)?liveState.films:[];liveState.films.push(sequel);
+      parent.history=Array.isArray(parent.history)?parent.history:[];parent.history.push({week:liveState.week,year:liveState.year,event:`Film #${number} greenlit`,detail:`${title} · ${sequelType} · ${direction} direction.`});
+      liveState.news=Array.isArray(liveState.news)?liveState.news:[];liveState.news.unshift({week:liveState.week,year:liveState.year,scope:'studio',type:'sequel',filmId:sequelId,film:sequel.title,title:`🎞️ ${liveState.studioName||'Your studio'} greenlights ${sequel.title}`,body:`The studio is returning to ${parent.title}. Film #${number} brings ${returning.length} returning character${returning.length===1?'':'s'} back and introduces ${newChars.length} new character${newChars.length===1?'':'s'}.`,category:'production',storyKey:`sequel-greenlit:${sequelId}`});
+      if(typeof saveCurrent==='function')saveCurrent(liveState,true);
       e.remove();
-      start(state);
-      toast(`${title} entered development as Film #${number}. −25 Energy`);
+      if(typeof start==='function')start(liveState);else window.location.reload();
+      setTimeout(()=>toast(`${title} entered development as Film #${number}. −25 Energy`),60);
     }catch(err){
       console.error('Sequel greenlight failed',err);
-      if(greenlightButton){greenlightButton.disabled=false;greenlightButton.textContent='GREENLIGHT SEQUEL · 25 ⚡ →';}
-      toast('Could not greenlight the sequel. Nothing was lost — please try again.');
+      if(greenlightButton){greenlightButton.dataset.processing='';greenlightButton.disabled=false;greenlightButton.textContent='GREENLIGHT SEQUEL · 25 ⚡ →';}
+      toast(`Could not greenlight the sequel: ${err?.message||'unknown error'}`);
     }
   };
+  if(greenlightButton){greenlightButton.type='button';greenlightButton.addEventListener('click',greenlightSequel,{capture:true});}
 }
 window.showSequelLab=showSequelLab;
 })();
