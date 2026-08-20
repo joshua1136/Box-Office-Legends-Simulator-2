@@ -1,4 +1,8 @@
 /* BOLS2 FESTIVALS v1 — connected film-festival circuit */
+const festivalEsc=s=>String(s??'').replace(/[&<>\"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[c]));
+const festivalToast=msg=>{if(typeof window.toast==='function')window.toast(msg);else{const n=document.querySelector('.notice');if(n){n.textContent=msg;n.classList.add('show');setTimeout(()=>n.classList.remove('show'),1800)}else console.info(msg)}};
+const esc=festivalEsc;
+const toast=festivalToast;
 const FILM_FESTIVALS = [
   {id:'cannes',name:'CANNES FILM FESTIVAL',country:'France',icon:'🇫🇷',week:21,prestige:100,fee:150000,focus:'Auteur cinema · Drama · International prestige',genres:{Drama:1.25,Romance:1.12,Thriller:1.08,Crime:1.06},award:'Palme d’Or'},
   {id:'sundance',name:'SUNDANCE FILM FESTIVAL',country:'United States',icon:'🇺🇸',week:4,prestige:91,fee:70000,focus:'Independent cinema · Emerging filmmakers · Original voices',genres:{Drama:1.22,Horror:1.18,Comedy:1.10,Thriller:1.08},award:'Grand Jury Prize'},
