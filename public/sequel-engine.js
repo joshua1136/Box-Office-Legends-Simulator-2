@@ -28,7 +28,8 @@ function showSequelLab(state,parent){
   const newChars=[];
   let sequelType='Direct Sequel',direction='Balanced';
   let budget=Math.round(Math.max(10000000,Number(parent.budget||30000000)*(1.15+(potential>=80?.18:0))));
-  let title='';
+  // Start with an editable suggestion so Greenlight is never blocked by an empty title.
+  let title=`${parent.title} ${number}`;
 
   const e=document.createElement('div');
   e.className='modal sequelModal';
@@ -71,7 +72,7 @@ function showSequelLab(state,parent){
 
       <section class="sequelBlock">
         <div class="sequelSectionHead"><small>02 · SEQUEL TITLE</small><span>The player decides the name.</span></div>
-        <label class="sequelField">FILM TITLE<input id="sequelTitle" maxlength="60" placeholder="Give your sequel its own title..."></label>
+        <label class="sequelField">FILM TITLE<input id="sequelTitle" maxlength="60" value="${escS(title)}" placeholder="Give your sequel its own title..."></label>
         <div class="titleSuggestions">
           <button type="button" data-title="numbered">${escS(parent.title)} ${number}</button>
           <button type="button" data-title="subtitle">${escS(parent.title)}: A New Chapter</button>
@@ -110,7 +111,7 @@ function showSequelLab(state,parent){
         <div><small>SERIES POSITION</small><b>FILM #${number}</b><span>${escS(parent.title)} → ${title||'Untitled sequel'}</span></div>
       </section>
     </div>
-    <footer class="sequelFooter"><div><small>NEXT</small><b>Development & Writing</b><span>New screenplay · returning characters · new production</span></div><button type="button" class="menuBtn primary sequelAction" id="greenlightSequel">GREENLIGHT SEQUEL · 25 ⚡ →</button></footer>
+    <footer class="sequelFooter"><div><small>NEXT</small><b>Development & Writing</b><span>New screenplay · returning characters · new production</span><em id="sequelActionStatus" aria-live="polite">Ready to greenlight Film #${number}.</em></div><button type="button" class="menuBtn primary sequelAction" id="greenlightSequel">GREENLIGHT SEQUEL · 25 ⚡ →</button></footer>
   </div>`;
 
   document.body.appendChild(e);
@@ -176,12 +177,13 @@ function showSequelLab(state,parent){
     const liveState=window.__BOL_STATE__||state;
     try{
       title=String(e.querySelector('#sequelTitle')?.value||'').trim();
-      if(!title){e.querySelector('#sequelTitle')?.focus();toast('TITLE REQUIRED · Give the sequel a title before greenlighting it.');return;}
+      if(!title){const status=e.querySelector('#sequelActionStatus');if(status)status.textContent='TITLE REQUIRED · Give the sequel a title.';e.querySelector('#sequelTitle')?.focus();return;}
       const energy=Number(liveState.energy);
-      if(!Number.isFinite(energy)||energy<25){toast('Your energy is too low! Greenlighting a sequel requires 25 ⚡.');return;}
+      if(!Number.isFinite(energy)||energy<25){const status=e.querySelector('#sequelActionStatus');if(status)status.textContent=`NOT ENOUGH ENERGY · Need 25 ⚡ to greenlight this sequel.`;return;}
       greenlightButton.dataset.processing='1';
       greenlightButton.disabled=true;
       greenlightButton.textContent='GREENLIGHTING…';
+      const actionStatus=e.querySelector('#sequelActionStatus');if(actionStatus)actionStatus.textContent='Creating the new film project…';
       liveState.energy=energy-25;
       const returning=[...e.querySelectorAll('[data-return-char]:checked')].map(x=>inherited[Number(x.dataset.returnChar)]).filter(Boolean).map(c=>({...c}));
       const characters=[...returning,...newChars.map(c=>({...c}))];
@@ -190,7 +192,7 @@ function showSequelLab(state,parent){
       liveState.films=Array.isArray(liveState.films)?liveState.films:[];liveState.films.push(sequel);
       parent.history=Array.isArray(parent.history)?parent.history:[];parent.history.push({week:liveState.week,year:liveState.year,event:`Film #${number} greenlit`,detail:`${title} · ${sequelType} · ${direction} direction.`});
       liveState.news=Array.isArray(liveState.news)?liveState.news:[];liveState.news.unshift({week:liveState.week,year:liveState.year,scope:'studio',type:'sequel',filmId:sequelId,film:sequel.title,title:`🎞️ ${liveState.studioName||'Your studio'} greenlights ${sequel.title}`,body:`The studio is returning to ${parent.title}. Film #${number} brings ${returning.length} returning character${returning.length===1?'':'s'} back and introduces ${newChars.length} new character${newChars.length===1?'':'s'}.`,category:'production',storyKey:`sequel-greenlit:${sequelId}`});
-      if(typeof saveCurrent==='function')saveCurrent(liveState,true);
+      if(typeof saveCurrent==='function'){const saved=saveCurrent(liveState,true);if(saved===false)throw new Error('The studio save could not be completed.');}
       e.remove();
       if(typeof start==='function')start(liveState);else window.location.reload();
       setTimeout(()=>toast(`${title} entered development as Film #${number}. −25 Energy`),60);
