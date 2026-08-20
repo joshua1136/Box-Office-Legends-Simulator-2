@@ -179,12 +179,13 @@ function showSequelLab(state,parent){
       title=String(e.querySelector('#sequelTitle')?.value||'').trim();
       if(!title){const status=e.querySelector('#sequelActionStatus');if(status)status.textContent='TITLE REQUIRED · Give the sequel a title.';e.querySelector('#sequelTitle')?.focus();return;}
       const energy=Number(liveState.energy);
-      if(!Number.isFinite(energy)||energy<25){const status=e.querySelector('#sequelActionStatus');if(status)status.textContent=`NOT ENOUGH ENERGY · Need 25 ⚡ to greenlight this sequel.`;return;}
+      if(!Number.isFinite(energy)){const status=e.querySelector('#sequelActionStatus');if(status)status.textContent='ENERGY ERROR · Studio energy is unavailable. Try reopening the sequel screen.';return;}
+      if(energy<25){const status=e.querySelector('#sequelActionStatus');if(status)status.textContent=`NOT ENOUGH ENERGY · Need 25 ⚡ · Available: ${energy} ⚡`;if(typeof spendEnergy==='function'){spendEnergy(liveState,25,'greenlighting a sequel');}return;}
       greenlightButton.dataset.processing='1';
       greenlightButton.disabled=true;
       greenlightButton.textContent='GREENLIGHTING…';
       const actionStatus=e.querySelector('#sequelActionStatus');if(actionStatus)actionStatus.textContent='Creating the new film project…';
-      liveState.energy=energy-25;
+      if(typeof spendEnergy==='function'){if(!spendEnergy(liveState,25,'greenlighting a sequel')){greenlightButton.dataset.processing='';greenlightButton.disabled=false;greenlightButton.textContent='GREENLIGHT SEQUEL · 25 ⚡ →';return;}}else{liveState.energy=energy-25;}
       const returning=[...e.querySelectorAll('[data-return-char]:checked')].map(x=>inherited[Number(x.dataset.returnChar)]).filter(Boolean).map(c=>({...c}));
       const characters=[...returning,...newChars.map(c=>({...c}))];
       const sequelId=Date.now();
@@ -202,7 +203,17 @@ function showSequelLab(state,parent){
       toast(`Could not greenlight the sequel: ${err?.message||'unknown error'}`);
     }
   };
-  if(greenlightButton){greenlightButton.type='button';greenlightButton.addEventListener('click',greenlightSequel,{capture:true});}
+  if(greenlightButton){
+    greenlightButton.type='button';
+    greenlightButton.addEventListener('click',greenlightSequel,{capture:true});
+    greenlightButton.addEventListener('pointerup',ev=>{ev.preventDefault();greenlightSequel();},{passive:false});
+    greenlightButton.addEventListener('touchend',ev=>{ev.preventDefault();greenlightSequel();},{passive:false});
+    window.__BOL_ACTIVE_SEQUEL_GREENLIGHT__=greenlightSequel;
+  }
+}
+if(!window.__BOL_SEQUEL_CLICK_BRIDGE__){
+  window.__BOL_SEQUEL_CLICK_BRIDGE__=true;
+  window.addEventListener('click',ev=>{const b=ev.target?.closest?.('#greenlightSequel');if(!b)return;window.__BOL_ACTIVE_SEQUEL_GREENLIGHT__?.();},true);
 }
 window.showSequelLab=showSequelLab;
 })();
