@@ -122,11 +122,13 @@ function showSequelLab(state,parent){
 
   function validate(){
     data.title=String(data.title||'').trim();
-    if(!data.title){toast('Give the sequel a title first.');return false;}
-    if(!Number.isFinite(data.budget)||data.budget<10000000){toast('Choose a valid production budget.');return false;}
-    const live=window.__BOL_STATE__||state, energy=Number(live.energy);
-    if(!Number.isFinite(energy)){toast('Studio Energy is unavailable. Reopen the sequel screen.');return false;}
-    if(energy<25){toast(`Not enough Energy. You need 25 ⚡ and have ${energy} ⚡.`);return false;}
+    if(!data.title){setStatus('ACTION BLOCKED','Title required','Enter a sequel title before greenlighting.');return false;}
+    if(!Number.isFinite(data.budget)||data.budget<10000000){setStatus('ACTION BLOCKED','Invalid budget','Choose a production budget of at least $10M.');return false;}
+    const live=window.__BOL_STATE__||state;
+    if(typeof ensureEnergyState==='function')ensureEnergyState(live);
+    const energy=Number(live.energy);
+    if(!Number.isFinite(energy)){setStatus('ACTION BLOCKED','Energy unavailable','The studio Energy state could not be read.');return false;}
+    if(energy<25){setStatus('ACTION BLOCKED','Not enough Energy',`Greenlighting requires 25 ⚡. You currently have ${energy} ⚡.`);return false;}
     return true;
   }
   function greenlight(){
