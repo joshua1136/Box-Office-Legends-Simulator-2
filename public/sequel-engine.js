@@ -111,7 +111,7 @@ function showSequelLab(state,parent){
         <div><small>SERIES POSITION</small><b>FILM #${number}</b><span>${escS(parent.title)} → ${title||'Untitled sequel'}</span></div>
       </section>
     </div>
-    <footer class="sequelFooter"><div><small>NEXT</small><b>Development & Writing</b><span>New screenplay · returning characters · new production</span><em id="sequelActionStatus" aria-live="polite">Ready to greenlight Film #${number}.</em></div><button type="button" class="menuBtn primary sequelAction" id="greenlightSequel">GREENLIGHT SEQUEL · 25 ⚡ →</button></footer>
+    <footer class="sequelFooter"><div><small>NEXT</small><b>Development & Writing</b><span>New screenplay · returning characters · new production</span><em id="sequelActionStatus" aria-live="polite">Ready to greenlight Film #${number}.</em></div><button type="button" class="menuBtn primary sequelAction" id="greenlightSequel" aria-label="Greenlight sequel">GREENLIGHT SEQUEL · 25 ⚡ →</button></footer>
   </div>`;
 
   document.body.appendChild(e);
@@ -204,16 +204,21 @@ function showSequelLab(state,parent){
     }
   };
   if(greenlightButton){
+    // One authoritative interaction path. The previous click/pointer/touch/global
+    // bridges could fire multiple times or compete with the modal's scrolling layer.
     greenlightButton.type='button';
-    greenlightButton.addEventListener('click',greenlightSequel,{capture:true});
-    greenlightButton.addEventListener('pointerup',ev=>{ev.preventDefault();greenlightSequel();},{passive:false});
-    greenlightButton.addEventListener('touchend',ev=>{ev.preventDefault();greenlightSequel();},{passive:false});
+    greenlightButton.setAttribute('role','button');
+    greenlightButton.addEventListener('pointerdown',()=>{
+      const status=e.querySelector('#sequelActionStatus');
+      if(status && greenlightButton.dataset.processing!=='1') status.textContent='TAP RECEIVED · Checking sequel decision…';
+    },{passive:true});
+    e.addEventListener('click',ev=>{
+      const b=ev.target?.closest?.('#greenlightSequel');
+      if(b && b===greenlightButton){ev.preventDefault();ev.stopPropagation();greenlightSequel();}
+    });
     window.__BOL_ACTIVE_SEQUEL_GREENLIGHT__=greenlightSequel;
   }
 }
-if(!window.__BOL_SEQUEL_CLICK_BRIDGE__){
-  window.__BOL_SEQUEL_CLICK_BRIDGE__=true;
-  window.addEventListener('click',ev=>{const b=ev.target?.closest?.('#greenlightSequel');if(!b)return;window.__BOL_ACTIVE_SEQUEL_GREENLIGHT__?.();},true);
-}
+// No global click/touch bridge: the sequel modal owns its own action routing.
 window.showSequelLab=showSequelLab;
 })();
