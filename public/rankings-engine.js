@@ -40,5 +40,5 @@
     };
     e.innerHTML='<div class="panel rankingsPanel"><div class="rankingLoading" aria-live="polite">LOADING INDUSTRY RANKINGS…</div></div>';document.body.appendChild(e);requestAnimationFrame(()=>draw());
   }
-  window.renderRankings=renderRankings;
+  window.getIndustrySnapshot=function(state,year){var y=Number(year||state.year||1);var studios=sortedStudios(studioRows(state,'yearly',y),'overall');var films=sortedFilms(yearlyFilmPool(state,y),'prestige');var genre={};films.forEach(function(f){var g=f.genre||'Drama';if(!genre[g])genre[g]={count:0,gross:0,prestige:0};genre[g].count++;genre[g].gross+=Number(f.gross||0);genre[g].prestige+=Number(f.prestige||0)});var popular='Drama',best=-1;Object.keys(genre).forEach(function(g){var x=genre[g],score=x.count*10+x.gross/100000000+x.prestige/100;if(score>best){best=score;popular=g}});return{year:y,topStudio:studios.length?studios[0].name:'No studio yet',topFilm:films.length?films[0].title:'No film yet',popularGenre:popular};};window.renderRankings=renderRankings;
 })();
