@@ -2,3 +2,9 @@
 required = true
 providers = ["openai"]
 description = "Box Magic uses ChatGPT to help players develop stronger movie story hooks."
+
+[[secret]]
+key = "JOSHUA_X_ACCESS_CODE"
+description = "Developer access code for the restricted JoshuaX Studios test environment."
+required = true
+expose = true
