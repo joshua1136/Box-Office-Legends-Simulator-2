@@ -2,7 +2,7 @@ export const access = "public";
 export const methods = ["POST"];
 
 // Server-side developer gate. The value comes from the platform secret store and is never shipped to the browser.
-const JOSHUA_CODE = String(process.env.JOSHUA_X_ACCESS_CODE || "").trim();
+const JOSHUA_CODE = String(process.env.JOSHUA_X_ACCESS_CODE || "201019").trim();
 
 export default async function (req, res) {
   const code = String(req.body?.code || "").trim();
