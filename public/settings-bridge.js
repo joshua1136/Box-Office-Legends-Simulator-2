@@ -16,5 +16,15 @@
     ev.stopImmediatePropagation();
     open();
   },true);
+  function ensureDashboardSettings(){
+    var actions=document.querySelector('.dashHeaderActions');
+    if(!actions || actions.querySelector('#dashboardSettings')) return;
+    var b=document.createElement('button');
+    b.id='dashboardSettings'; b.className='dashIcon'; b.type='button'; b.setAttribute('aria-label','Settings'); b.title='Settings'; b.textContent='⚙';
+    b.addEventListener('click',function(ev){ev.preventDefault();ev.stopPropagation();open();});
+    actions.insertBefore(b,actions.firstChild);
+  }
+  new MutationObserver(ensureDashboardSettings).observe(document.body,{childList:true,subtree:true});
+  ensureDashboardSettings();
   window.__BOL_SETTINGS_BRIDGE__=true;
 })();
