@@ -46,7 +46,7 @@
 .industryProfileModal .dealDepthGrid{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:9px!important}
 .industryProfileModal .dealDepthGrid .industryAction{min-height:118px!important;display:flex!important;flex-direction:column!important;justify-content:flex-end!important}
 .industryProfileModal .dealDepthGrid .industryAction:before{content:"";display:block!important;flex:1!important;margin-bottom:10px!important;width:34px!important;height:34px!important;border-radius:10px!important;border:1px solid rgba(207,169,87,.2)!important;background:radial-gradient(circle at 40% 35%,rgba(207,169,87,.26),transparent 60%)!important}
-.industryProfileModal [data-pane]{display:block!important}
+.industryProfileModal [data-pane]{display:none!important}.industryProfileModal [data-pane].active-pane{display:block!important}
 @media(max-width:700px){
   .industryProfileModal{padding:7px!important}
   .industryProfileModal .industryUniversePanel{width:100%!important;height:96vh!important;max-height:96vh!important;border-radius:18px!important}
