@@ -10,7 +10,7 @@
   <link rel="stylesheet" href="/festivals.css">
   <link rel="stylesheet" href="/dashboard.css">
   <link rel="stylesheet" href="/dashboard-sections.css">
-  <link rel="stylesheet" href="/rival-studio-polish.css">
+  <!-- Rival studio styles are loaded last for modal-specific overrides. -->
   <link rel="stylesheet" href="/newsroom-v2.css">
   <link rel="stylesheet" href="/loading.css">
   <link rel="stylesheet" href="/ui-consistency-v6.css">
@@ -83,5 +83,7 @@
   <script src="/music.js"></script>
   <script src="/loading.js"></script>
   <script src="/settings-bridge.js"></script>
+  <!-- Load rival-studio polish last so it wins over older global UI repair rules. -->
+  <link rel="stylesheet" href="/rival-studio-polish.css">
 </body>
 </html>
