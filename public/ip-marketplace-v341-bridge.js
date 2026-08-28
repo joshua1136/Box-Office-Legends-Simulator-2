@@ -32,6 +32,16 @@
   }
 
   document.addEventListener('click',function(e){
+    // Capture the Industry "SHOP FOR IP" action as well as individual cards.
+    // The legacy Industry handler otherwise opens the old, non-functional
+    // IP acquisition room underneath the v341 marketplace.
+    const industryIP=e.target.closest?.('[data-industry-action="ip"]');
+    if(industryIP && window.showIPMarketplace){
+      e.preventDefault();e.stopImmediatePropagation();
+      document.querySelectorAll('.industryDealModal').forEach(x=>x.remove());
+      window.showIPMarketplace(window.__BOL_STATE__||window.BOLS2_GAME_STATE||window.gameState);
+      return;
+    }
     const card=e.target.closest('.ip-v341-market-card, .ipCard, .iipMarketCard');
     if(card){
       const id=card.dataset.ipId || card.getAttribute('data-ip') || card.getAttribute('data-id');

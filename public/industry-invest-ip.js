@@ -44,9 +44,37 @@
     o.querySelector('.owned')?.addEventListener('click',()=>ownedDossier(ip,o));
   }
 
-  function negotiate(ip,old){close(old);const rival=['Warner Bros. Pictures','Universal Pictures','Netflix Studios','Disney+','HBO Films'][(ip.popularity+ip.fanbase)%5];
-    const o=overlay(`<div class="ip-v341-card ip-neg"><button class="ip-v341-close">×</button><div class="ip-v341-eyebrow">RIGHTS NEGOTIATION · COMPETITIVE SALE</div><h1>${esc(ip.name)}</h1><p>The rights holder is considering multiple buyers. <strong>${rival}</strong> is watching this deal.</p><div class="ip-v341-deal"><div><small>ASK</small><b>${cash(ip.ask)}</b></div><div><small>FANBASE</small><b>${ip.tier}</b></div><label><small>YOUR OFFER</small><input type="number" value="${Math.round(ip.ask*.82)}"></label></div><div class="ip-v341-warning">Your offer affects both acceptance odds and the final acquisition cost.</div><button class="ip-v341-primary submit">SUBMIT OFFER →</button></div>`);
-    o.querySelector('.ip-v341-close').onclick=()=>close(o);o.querySelector('.submit').onclick=()=>{const offer=Number(o.querySelector('input').value||0);const floor=ip.ask*(ip.fanbase>=90?.96:ip.fanbase>=70?.88:.8);if(offer>=floor){const arr=owned();arr.push({...ip,acquiredFor:offer,acquiredWeek:window.BOLS2_GAME_STATE?.week||1});save(arr);o.innerHTML=`<div class="ip-v341-card"><div class="ip-v341-eyebrow">RIGHTS ACQUIRED</div><h1>${esc(ip.name)}</h1><p>Your studio now controls this IP.</p><div class="ip-v341-won">ACQUIRED FOR <b>${cash(offer)}</b></div><button class="ip-v341-primary library">ADD TO IP LIBRARY →</button></div>`;o.querySelector('.library').onclick=()=>ownedDossier(ip,o)}else{o.querySelector('.ip-v341-warning').textContent=`Offer rejected. ${rival} remains interested. Try ${cash(Math.ceil(floor))} or more.`;}};
+  function negotiate(ip,old){
+    close(old);
+    const rival=['Warner Bros. Pictures','Universal Pictures','Netflix Studios','Disney+','HBO Films'][(ip.popularity+ip.fanbase)%5];
+    const state=window.__BOL_STATE__||window.BOLS2_GAME_STATE||window.gameState||null;
+    const stateOwned=()=>Array.isArray(state?.industry?.ipLibrary)?state.industry.ipLibrary:[];
+    const alreadyOwned=()=>owned().some(x=>x.id===ip.id)||stateOwned().some(x=>x.id===ip.id);
+    const o=overlay(`<div class="ip-v341-card ip-neg"><button class="ip-v341-close">×</button><div class="ip-v341-eyebrow">RIGHTS NEGOTIATION · COMPETITIVE SALE</div><h1>${esc(ip.name)}</h1><p>The rights holder is considering multiple buyers. <strong>${rival}</strong> is watching this deal.</p><div class="ip-v341-deal"><div><small>ASK</small><b>${cash(ip.ask)}</b></div><div><small>FANBASE</small><b>${ip.tier}</b></div><div><small>RIVAL BUYER</small><b>${esc(rival)}</b></div><label><small>YOUR OFFER</small><input type="number" min="0" value="${Math.round(ip.ask*.82)}"></label></div><div class="ip-v341-warning">Your offer affects acceptance odds and the final acquisition cost.</div><button class="ip-v341-primary submit">SUBMIT OFFER →</button></div>`);
+    o.querySelector('.ip-v341-close').onclick=()=>close(o);
+    o.querySelector('.submit').onclick=()=>{
+      if(alreadyOwned()){o.querySelector('.ip-v341-warning').textContent='This property is already owned by your studio. It has been removed from the active acquisition market.';o.querySelector('.submit').disabled=true;return;}
+      const offer=Number(o.querySelector('input').value||0);
+      const floor=ip.ask*(ip.fanbase>=90?.96:ip.fanbase>=70?.88:.8);
+      if(offer<floor){o.querySelector('.ip-v341-warning').textContent=`Offer rejected. ${rival} remains interested. Try ${cash(Math.ceil(floor))} or more.`;return;}
+      if(state && Number(state.money||0)<offer){o.querySelector('.ip-v341-warning').textContent=`Insufficient cash. You need ${cash(offer)} to close this rights deal.`;return;}
+      if(state && typeof window.spendEnergy==='function' && !window.spendEnergy(state,8,'acquiring IP rights'))return;
+      const week=Number(state?.week||window.BOLS2_GAME_STATE?.week||1),year=Number(state?.year||window.BOLS2_GAME_STATE?.year||1);
+      const record={...ip,id:ip.id,acquiredFor:offer,purchasePrice:offer,acquiredWeek:week,week,year,status:'owned',history:[{week,year,event:'Rights acquired',detail:`Acquired from the rights market for ${cash(offer)}.`}]};
+      if(state){
+        state.money=Math.max(0,Number(state.money||0)-offer);
+        state.industry=state.industry||{};state.industry.ipLibrary=state.industry.ipLibrary||[];
+        state.industry.ipLibrary=state.industry.ipLibrary.filter(x=>x.id!==ip.id);state.industry.ipLibrary.push(record);
+        state.industry.ipDeals=state.industry.ipDeals||[];state.industry.ipDeals.push({id:`ip-deal-${Date.now()}`,ipId:ip.id,property:ip.name,offer,status:'closed',rival,week,year});
+        state.transactions=state.transactions||[];state.transactions.push({week,year,type:'ip-acquisition',amount:-offer,description:`Acquired IP rights: ${ip.name}`});
+        state.news=state.news||[];state.news.unshift({week,year,type:'industry-deal',title:`🎞️ ${state.studioName||'Your studio'} acquires ${ip.name}`,body:`The studio won the rights after a competitive sale involving ${rival}. The property is now available in the IP Library.`});
+        state.reputation=Math.min(100,Number(state.reputation||0)+Math.max(1,Math.round(ip.popularity/40)));
+        if(typeof window.saveCurrent==='function')window.saveCurrent(state,true);
+      }
+      const arr=owned().filter(x=>x.id!==ip.id);arr.push(record);save(arr);
+      o.innerHTML=`<div class="ip-v341-card"><div class="ip-v341-eyebrow">RIGHTS ACQUIRED · DEAL CLOSED</div><h1>${esc(ip.name)}</h1><p>Your studio won the property. ${esc(rival)} has lost the bidding battle.</p><div class="ip-v341-won">ACQUIRED FOR <b>${cash(offer)}</b></div><div class="ip-v341-section"><h3>🎬 NEXT STEP</h3><p>The property is now permanently connected to your studio's IP Library. From there you can build a fresh movie from the IP.</p></div><button class="ip-v341-primary library">OPEN IP LIBRARY →</button></div>`;
+      o.querySelector('.library').onclick=()=>{close(o);if(state&&typeof window.openSection==='function')window.openSection(state,'MOVIES');else ownedDossier(record,null);};
+    };
   }
 
   function ownedDossier(ip,old){close(old);const o=overlay(`<div class="ip-v341-card"><button class="ip-v341-close">×</button><div class="ip-v341-eyebrow">YOUR IP LIBRARY · RIGHTS CONTROLLED</div><h1>${esc(ip.name)}</h1><p>${esc(ip.genre)} · ${ip.tier} fanbase · ${ip.popularity}/100 popularity</p><div class="ip-v341-section"><h3>🎬 DEVELOPMENT</h3><p>You own the rights. Develop a fresh movie, build the property into a franchise, or hold it for a better release window.</p></div><button class="ip-v341-primary fresh">MAKE A FRESH MOVIE OF “${esc(ip.name.toUpperCase())}” →</button></div>`);o.querySelector('.ip-v341-close').onclick=()=>close(o);o.querySelector('.fresh').onclick=()=>{window.dispatchEvent(new CustomEvent('bols2:start-ip-movie',{detail:ip}));close(o);};}
