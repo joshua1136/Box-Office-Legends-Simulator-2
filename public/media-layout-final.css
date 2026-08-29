@@ -1,0 +1,56 @@
+/* BOLS MEDIA — FINAL MOBILE SHELL REPAIR */
+.mediaHubModal,
+.mediaHubModal *{box-sizing:border-box}
+.mediaHubModal{position:fixed!important;inset:0!important;width:100vw!important;max-width:100vw!important;min-width:0!important;padding:0!important;display:flex!important;align-items:center!important;justify-content:center!important;overflow:hidden!important}
+.mediaHubModal .mediaHubPanel{position:relative!important;display:flex!important;flex-direction:column!important;align-items:stretch!important;justify-content:flex-start!important;width:min(1240px,100vw)!important;max-width:100vw!important;min-width:0!important;height:100dvh!important;max-height:100dvh!important;margin:0!important;left:auto!important;right:auto!important;transform:none!important;overflow:hidden!important;border-radius:0!important}
+.mediaHubModal .mediaHubHeader{width:100%!important;min-width:0!important;flex:0 0 64px!important;display:flex!important;align-items:center!important;justify-content:space-between!important}
+.mediaHubModal .mediaBrand{min-width:0!important;flex:1 1 auto!important}
+.mediaHubModal .mediaHeaderTools{flex:0 0 auto!important}
+.mediaHubModal .mediaSearchWrap{width:auto!important;min-width:0!important;flex:0 0 auto!important;align-self:stretch!important;margin-left:14px!important;margin-right:14px!important}
+.mediaHubModal .mediaTabs{width:100%!important;min-width:0!important;flex:0 0 auto!important;align-self:stretch!important;display:flex!important;max-width:none!important}
+.mediaHubModal .mediaContent{width:100%!important;min-width:0!important;max-width:none!important;flex:1 1 auto!important;align-self:stretch!important;display:block!important;overflow-x:hidden!important;overflow-y:auto!important}
+.mediaHubModal #mediaContent > section,
+.mediaHubModal #mediaContent > div{width:100%!important;min-width:0!important;max-width:none!important}
+.mediaHubModal .mediaFeatured,
+.mediaHubModal .mediaSection,
+.mediaHubModal .myChannelDashboard,
+.mediaHubModal .channelSubPage,
+.mediaHubModal .communityFeed{width:100%!important;min-width:0!important;max-width:none!important;margin-left:auto!important;margin-right:auto!important}
+.mediaHubModal .mediaGrid{width:100%!important;min-width:0!important;max-width:none!important}
+.mediaHubModal .mediaVideoCard{min-width:0!important;width:100%!important;max-width:none!important}
+.mediaHubModal .mediaFooter{width:100%!important;min-width:0!important;align-self:stretch!important}
+
+/* Channel dashboard must behave like a native mobile game screen, never a desktop canvas. */
+.mediaHubModal .channelCover{width:100%!important;min-width:0!important}
+.mediaHubModal .channelIdentity{width:100%!important;min-width:0!important}
+.mediaHubModal .channelIdentityText{min-width:0!important;overflow:hidden!important}
+.mediaHubModal .channelTabs{width:100%!important;min-width:0!important;overflow-x:auto!important}
+.mediaHubModal .channelMetricGrid,
+.mediaHubModal .channelDashboardGrid,
+.mediaHubModal .channelBottomCards{width:100%!important;min-width:0!important}
+.mediaHubModal .channelPanel{min-width:0!important;max-width:none!important}
+
+@media(max-width:720px){
+ .mediaHubModal .mediaHubPanel{width:100vw!important;max-width:100vw!important;height:100dvh!important;max-height:100dvh!important;border-radius:0!important}
+ .mediaHubModal .mediaHubHeader{padding-left:14px!important;padding-right:14px!important}
+ .mediaHubModal .mediaSearchWrap{margin-left:14px!important;margin-right:14px!important;width:auto!important}
+ .mediaHubModal .mediaTabs{padding-left:14px!important;padding-right:14px!important}
+ .mediaHubModal .mediaContent{padding-left:14px!important;padding-right:14px!important;padding-bottom:28px!important}
+ .mediaHubModal .mediaFeatured{display:block!important}
+ .mediaHubModal .mediaGrid{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:14px 9px!important}
+ .mediaHubModal .mediaVideoCard{width:100%!important}
+ .mediaHubModal .channelDashboardGrid,
+ .mediaHubModal .channelBottomCards{grid-template-columns:1fr!important}
+ .mediaHubModal .channelMetricGrid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+ .mediaHubModal .channelTabs{margin-left:0!important;margin-right:0!important}
+ .mediaHubModal .channelCover{padding:15px!important}
+ .mediaHubModal .channelIdentityText h2{font-size:18px!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
+ .mediaHubModal .channelIdentityText p{white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
+ .mediaHubModal .channelActions{width:100%!important}
+ .mediaHubModal .channelActions .menuBtn{max-width:none!important}
+}
+@media(max-width:420px){
+ .mediaHubModal .mediaContent{padding-left:10px!important;padding-right:10px!important}
+ .mediaHubModal .mediaGrid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:12px 8px!important}
+ .mediaHubModal .channelMetricGrid{gap:7px!important}
+}
