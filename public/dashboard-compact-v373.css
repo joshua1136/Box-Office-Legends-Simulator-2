@@ -1,0 +1,35 @@
+/* v373 — compact mobile-game dashboard. Keeps the 3-column command grid dense and tappable. */
+.studioDash .dashNav{gap:8px!important;margin:12px 0!important}
+.studioDash .dashNav button{min-height:0!important;height:76px!important;padding:8px 4px!important;border-radius:11px!important;font-size:15px!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:4px!important;line-height:1!important}
+.studioDash .dashNav button>span:first-child{font-size:21px!important;line-height:1!important;margin:0!important}
+.studioDash .dashNav button span:last-child{font-size:6px!important;letter-spacing:.75px!important;line-height:1.1!important;margin:0!important;white-space:nowrap!important}
+.studioDash .dashStats{gap:7px!important;margin-bottom:10px!important}
+.studioDash .dashStat{padding:10px 12px!important;border-radius:10px!important}
+.studioDash .dashStat b{font-size:14px!important;margin-top:4px!important}
+.studioDash .dashStat span{font-size:6px!important;margin-top:3px!important}
+.studioDash .dashGrid{gap:10px!important}
+.studioDash .dashCard{border-radius:11px!important}
+.studioDash .cardHead{padding:11px 13px!important}
+.studioDash .emptyProject{padding:18px 14px!important;gap:10px!important}
+.studioDash .emptyIcon{width:38px!important;height:38px!important;font-size:17px!important}
+.studioDash .projectList{padding:7px!important}
+.studioDash .projectRow{padding:9px!important;gap:9px!important;margin-bottom:6px!important}
+.studioDash .dashFooter{padding-top:10px!important}
+.studioDash .dashFooterActions{gap:7px!important}
+.studioDash .nextWeek,.studioDash .negativeWeek{padding:10px 14px!important}
+@media(max-width:700px){
+  .studioDash{padding:12px!important}
+  .studioDash .dashNav{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:7px!important}
+  .studioDash .dashNav button{height:72px!important}
+  .studioDash .dashNav button>span:first-child{font-size:20px!important}
+  .studioDash .dashNav button span:last-child{font-size:5.5px!important;letter-spacing:.55px!important}
+  .studioDash .dashStats{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  .studioDash .dashStats .dashStat:last-child{grid-column:auto!important}
+  .studioDash .dashFooterActions{display:grid!important;grid-template-columns:92px minmax(0,1fr)!important}
+}
+@media(max-width:380px){
+  .studioDash .dashNav{gap:6px!important}
+  .studioDash .dashNav button{height:66px!important;padding:6px 2px!important}
+  .studioDash .dashNav button>span:first-child{font-size:18px!important}
+  .studioDash .dashNav button span:last-child{font-size:5px!important}
+}
