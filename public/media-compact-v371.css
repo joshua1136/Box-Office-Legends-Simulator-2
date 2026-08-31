@@ -1,0 +1,21 @@
+/* BOLS MEDIA v371 — compact mobile game UI + visible industry studios */
+.mediaHubModal .mediaSection{padding-top:14px!important;margin-bottom:8px!important}
+.mediaHubModal .mediaSectionHead{margin-bottom:8px!important}
+.mediaHubModal .mediaHeroCard,.mediaHubModal .mediaFeatured,.mediaHubModal .mediaFeaturedCard,.mediaHubModal .mediaHero{min-height:0!important;height:auto!important}
+.mediaHubModal .mediaHeroCard{aspect-ratio:16/10;max-height:330px}
+.mediaHubModal .mediaHeroCopy{bottom:12px!important}
+.mediaHubModal .mediaHeroCopy h2,.mediaHubModal .mediaFeaturedCopy h2{font-size:21px!important}
+.mediaHubModal .mediaGrid,.mediaHubModal .mediaVideoGrid,.mediaHubModal .mediaCardGrid{gap:8px!important}
+.mediaHubModal .mediaCard,.mediaHubModal .mediaVideoCard{border-radius:12px!important}
+.mediaHubModal .mediaThumb,.mediaHubModal .mediaVideoThumb{aspect-ratio:16/9!important}
+.bm371-studios{margin:14px 0 4px;padding:0 0 2px}
+.bm371-studios-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.bm371-studios-head b{font-size:14px;letter-spacing:.2px}.bm371-studios-head span{font-size:9px;color:#858990;letter-spacing:1px}
+.bm371-studio-row{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding-bottom:4px}
+.bm371-studio-row::-webkit-scrollbar{display:none}
+.bm371-studio{flex:0 0 112px;min-height:76px;border:1px solid #292c32;border-radius:13px;background:#121419;color:#fff;padding:10px;text-align:left}
+.bm371-studio:active{transform:scale(.98)}
+.bm371-logo{height:28px;display:flex;align-items:center;font-weight:900;font-size:14px;color:#e9c56f;margin-bottom:7px}
+.bm371-studio strong{display:block;font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bm371-studio small{display:block;color:#777c83;font-size:8px;margin-top:3px}
+@media(min-width:700px){.mediaHubModal .mediaHeroCard{max-height:420px}.bm371-studios{margin-top:20px}.bm371-studio{flex-basis:145px}}
