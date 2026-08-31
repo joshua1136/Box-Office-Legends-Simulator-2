@@ -1,113 +1,140 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Box Office Legends 2.0</title>
-  <link rel="stylesheet" href="/main.css">
-  <link rel="stylesheet" href="/settings-polish.css">
-  <link rel="stylesheet" href="/release.css">
-  <link rel="stylesheet" href="/festivals.css">
-  <link rel="stylesheet" href="/dashboard.css">
-  <link rel="stylesheet" href="/dashboard-sections.css">
-  <link rel="stylesheet" href="/newsroom-v2.css">
-  <link rel="stylesheet" href="/loading.css">
-  <link rel="stylesheet" href="/ui-consistency-v6.css">
-  <link rel="stylesheet" href="/studio-report-streams.css">
-  <link rel="stylesheet" href="/ui-repair-v7.css">
-  <link rel="stylesheet" href="/media-mobile-fix.css">
-  <link rel="stylesheet" href="/studio-stream-report-v151.css">
-  <link rel="stylesheet" href="/weekly-analysis-v2.css">
-  <link rel="stylesheet" href="/film-history.css">
-  <link rel="stylesheet" href="/development-lab.css">
-  <link rel="stylesheet" href="/development-lab-connected.css">
-  <link rel="stylesheet" href="/development-lab-overhaul.css">
-  <link rel="stylesheet" href="/development-lab-v2.css">
-  <link rel="stylesheet" href="/movie.css">
-  <link rel="stylesheet" href="/greenlight-announcement.css">
-  <link rel="stylesheet" href="/rankings.css">
-  <link rel="stylesheet" href="/yearly-wrapped.css">
-  <link rel="stylesheet" href="/yearly-wrapped-v2.css">
-  <link rel="stylesheet" href="/developer-console.css">
-  <link rel="stylesheet" href="/jx-security.css">
-  <link rel="stylesheet" href="/media-hub.css">
-  <link rel="stylesheet" href="/media-v366.css">
-  <link rel="stylesheet" href="/media-community.css">
-  <link rel="stylesheet" href="/media-v357.css">
-  <link rel="stylesheet" href="/media-v359.css">
-  <link rel="stylesheet" href="/media-v357b.css">
-  <link rel="stylesheet" href="/media-channel-v356.css">
-  <link rel="stylesheet" href="/media-creator.css">
-  <link rel="stylesheet" href="/media-layout-final.css">
-  <link rel="stylesheet" href="/media-v2.css">
-  <style>html,body{margin:0;min-height:100%;background:#071109;color:#eee}#app{min-height:100vh}</style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Box Office Legends 2.0</title>
+<link rel="stylesheet" href="/main.css">
+<link rel="stylesheet" href="/box-office-run.css">
+<link rel="stylesheet" href="/dashboard.css">
+<link rel="stylesheet" href="/dashboard-sections.css">
+<link rel="stylesheet" href="/developer-console.css">
+<link rel="stylesheet" href="/jx-security.css">
+<link rel="stylesheet" href="/loading.css">
+<link rel="stylesheet" href="/movie.css">
+<link rel="stylesheet" href="/film-details.css">
+<link rel="stylesheet" href="/film-history.css">
+<link rel="stylesheet" href="/film-project-ui.css">
+<link rel="stylesheet" href="/project-file-ui.css">
+<link rel="stylesheet" href="/project-finance-polish.css">
+<link rel="stylesheet" href="/finance.css">
+<link rel="stylesheet" href="/talent.css">
+<link rel="stylesheet" href="/talent-contract.css">
+<link rel="stylesheet" href="/talent-labels.css">
+<link rel="stylesheet" href="/poster.css">
+<link rel="stylesheet" href="/poster-overhaul.css">
+<link rel="stylesheet" href="/release.css">
+<link rel="stylesheet" href="/events.css">
+<link rel="stylesheet" href="/events-v2.css">
+<link rel="stylesheet" href="/events-v3.css">
+<link rel="stylesheet" href="/event-system-v2.css">
+<link rel="stylesheet" href="/industry-events-v1.css">
+<link rel="stylesheet" href="/weekly.css">
+<link rel="stylesheet" href="/weekly-flow-v3.css">
+<link rel="stylesheet" href="/weekly-flow-v4.css">
+<link rel="stylesheet" href="/weekly-analysis-v2.css">
+<link rel="stylesheet" href="/next-week-loading.css">
+<link rel="stylesheet" href="/studio-report-streams.css">
+<link rel="stylesheet" href="/studio-stream-report-v151.css">
+<link rel="stylesheet" href="/streaming-system-v2.css">
+<link rel="stylesheet" href="/festivals.css">
+<link rel="stylesheet" href="/rankings.css">
+<link rel="stylesheet" href="/yearly-wrapped.css">
+<link rel="stylesheet" href="/yearly-wrapped-v2.css">
+<link rel="stylesheet" href="/sequel-engine.css">
+<link rel="stylesheet" href="/greenlight-announcement.css">
+<link rel="stylesheet" href="/greenlight-announcement-v2.css">
+<link rel="stylesheet" href="/newsroom-v2.css">
+<link rel="stylesheet" href="/development-lab.css">
+<link rel="stylesheet" href="/development-lab-connected.css">
+<link rel="stylesheet" href="/development-lab-overhaul.css">
+<link rel="stylesheet" href="/development-lab-v2.css">
+<link rel="stylesheet" href="/coproduction-overhaul.css">
+<link rel="stylesheet" href="/industry-invest-ip.css">
+<link rel="stylesheet" href="/industry-profile-redesign.css">
+<link rel="stylesheet" href="/ip-marketplace-v341.css">
+<link rel="stylesheet" href="/rival-profile-interactions.css">
+<link rel="stylesheet" href="/rival-studio-polish.css">
+<link rel="stylesheet" href="/settings-polish.css">
+<link rel="stylesheet" href="/ui-consistency-v6.css">
+<link rel="stylesheet" href="/ui-repair-v7.css">
+<link rel="stylesheet" href="/media-hub.css">
+<link rel="stylesheet" href="/media-v2.css">
+<link rel="stylesheet" href="/media-v357.css">
+<link rel="stylesheet" href="/media-v357b.css">
+<link rel="stylesheet" href="/media-v358.css">
+<link rel="stylesheet" href="/media-v359.css">
+<link rel="stylesheet" href="/media-layout-final.css">
+<link rel="stylesheet" href="/media-mobile-fix.css">
+<link rel="stylesheet" href="/media-channel-v356.css">
+<link rel="stylesheet" href="/media-community.css">
+<link rel="stylesheet" href="/media-creators-v364.css">
+<link rel="stylesheet" href="/media-navigation-v365.css">
+<link rel="stylesheet" href="/media-v366.css">
+<link rel="stylesheet" href="/media-creator-engine-v368.css">
 </head>
 <body>
-  <div id="app"></div>
-  <script src="/industry-data.js"></script>
-  <script src="/movie-hooks.js"></script>
-  <link rel="stylesheet" href="/next-week-loading.css">
-  <script src="/next-week-loading.js"></script>
-  <script src="/main.js"></script>
-  <script src="/media-hub.js"></script>
-  <script src="/media-creator.js"></script>
-  <script src="/media-community.js"></script>
-  <script src="/greenlight-announcement.js"></script>
-  <script src="/rankings-engine.js"></script>
-  <script src="/festivals-engine.js"></script>
-  <link rel="stylesheet" href="/sequel-engine.css">
-  <script src="/sequel-engine.js"></script>
-  <link rel="stylesheet" href="/greenlight-announcement-v2.css">
-  <script src="/greenlight-announcement-v2.js"></script>
-  <script src="/yearly-wrapped.js"></script>
-  <script src="/yearly-wrapped-v2.js"></script>
-  <script src="/developer-console.js"></script>
-  <script src="/development-lab-v2.js"></script>
-  <link rel="stylesheet" href="/events-v2.css">
-  <link rel="stylesheet" href="/events-v3.css">
-  <script src="/events-state-bridge.js"></script>
-  <script src="/events-auto-effects.js"></script>
-  <script src="/events-v3.js"></script>
-  <script src="/events-v3-bridge.js"></script>
-  <script src="/events-v2.js"></script>
-  <script src="/event-top-layout.js"></script>
-  <script src="/weekly-event-connector.js"></script>
-  <script src="/weekly-analysis-v2.js"></script>
-  <link rel="stylesheet" href="/weekly-flow-v3.css">
-  <script src="/weekly-flow-v3.js"></script>
-  <link rel="stylesheet" href="/weekly-flow-v4.css">
-  <script src="/weekly-flow-v4.js"></script>
-  <script src="/streams-overhaul.js"></script>
-  <script src="/industry-upgrade.js"></script>
-  <link rel="stylesheet" href="/coproduction-overhaul.css">
-  <script src="/coproduction-overhaul.js"></script>
-  <link rel="stylesheet" href="/industry-invest-ip.css">
-  <link rel="stylesheet" href="/ip-marketplace-v341.css">
-  <script src="/industry-invest-ip.js"></script>
-  <script src="/ip-marketplace-v341-bridge.js"></script>
-  <script src="/industry-economy-v2.js"></script>
-  <script src="/finance-upgrade.js"></script>
-  <link rel="stylesheet" href="/project-finance-polish.css">
-  <link rel="stylesheet" href="/project-file-ui.css">
-  <link rel="stylesheet" href="/talent-contract.css">
-  <link rel="stylesheet" href="/event-system-v2.css">
-  <link rel="stylesheet" href="/film-project-ui.css">
-  <script src="/film-project-ui.js"></script>
-  <script src="/project-file-ui.js"></script>
-  <script src="/project-finance-polish.js"></script>
-  <script src="/streaming-auction-v3.js"></script>
-  <script src="/streaming-bidding-v4.js"></script>
-  <script src="/streaming-economy-v5.js"></script>
-  <script src="/character-system.js"></script>
-  <script src="/actress-fix.js"></script>
-  <script src="/poster-overhaul.js"></script>
-  <script src="/settings.js"></script>
-  <script src="/music.js"></script>
-  <script src="/loading.js"></script>
-  <script src="/settings-bridge.js"></script>
-  <link rel="stylesheet" href="/rival-studio-polish.css">
-  <link rel="stylesheet" href="/industry-profile-redesign.css">
-  <link rel="stylesheet" href="/rival-profile-interactions.css">
-  <script src="/rival-profile-interactions.js"></script>
+<div id="app"></div>
+<script src="/main.js"></script>
+<script src="/actress-fix.js"></script>
+<script src="/box-office-run.js"></script>
+<script src="/character-system.js"></script>
+<script src="/coproduction-overhaul.js"></script>
+<script src="/dashboard-sections.js"></script>
+<script src="/developer-console.js"></script>
+<script src="/development-lab-ui.js"></script>
+<script src="/development-lab-v2.js"></script>
+<script src="/event-system-v2.js"></script>
+<script src="/event-top-layout.js"></script>
+<script src="/events-auto-effects.js"></script>
+<script src="/events-state-bridge.js"></script>
+<script src="/events-v2.js"></script>
+<script src="/events-v3-bridge.js"></script>
+<script src="/events-v3.js"></script>
+<script src="/festivals-engine.js"></script>
+<script src="/film-project-ui.js"></script>
+<script src="/finance-upgrade.js"></script>
+<script src="/greenlight-announcement.js"></script>
+<script src="/greenlight-announcement-v2.js"></script>
+<script src="/industry-big-update.js"></script>
+<script src="/industry-data.js"></script>
+<script src="/industry-economy-v2.js"></script>
+<script src="/industry-events-v1.js"></script>
+<script src="/industry-invest-ip.js"></script>
+<script src="/industry-upgrade.js"></script>
+<script src="/ip-marketplace-v341-bridge.js"></script>
+<script src="/loading.js"></script>
+<script src="/media-v2.js"></script>
+<script src="/media-hub.js"></script>
+<script src="/media-creator.js"></script>
+<script src="/media-community.js"></script>
+<script src="/media-creators-v364.js"></script>
+<script src="/media-navigation-v365.js"></script>
+<script src="/movie-hooks.js"></script>
+<script src="/music.js"></script>
+<script src="/next-week-loading.js"></script>
+<script src="/poster-overhaul.js"></script>
+<script src="/project-file-ui.js"></script>
+<script src="/project-finance-polish.js"></script>
+<script src="/rankings-engine.js"></script>
+<script src="/rival-profile-interactions.js"></script>
+<script src="/sequel-engine.js"></script>
+<script src="/settings.js"></script>
+<script src="/settings-bridge.js"></script>
+<script src="/streaming-auction-v3-loader.js"></script>
+<script src="/streaming-auction-v3.js"></script>
+<script src="/streaming-bidding-v4.js"></script>
+<script src="/streaming-bidding.js"></script>
+<script src="/streaming-economy-v5.js"></script>
+<script src="/streaming-system-v2-loader.js"></script>
+<script src="/streaming-system-v2.js"></script>
+<script src="/streams-overhaul.js"></script>
+<script src="/weekly-analysis-v2.js"></script>
+<script src="/weekly-event-connector.js"></script>
+<script src="/weekly-flow-v3.js"></script>
+<script src="/weekly-flow-v4.js"></script>
+<script src="/yearly-wrapped.js"></script>
+<script src="/yearly-wrapped-v2.js"></script>
+<script src="/media-creator-engine-v368.js"></script>
 </body>
 </html>
