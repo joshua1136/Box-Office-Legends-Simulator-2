@@ -1,0 +1,18 @@
+/* v369: keep the dashboard feeling like a mobile game, not a desktop webpage. */
+.studioDash{width:100%;max-width:1180px;margin:0 auto;overflow-x:hidden}
+.dashGrid,.dashStats,.dashNav,.metricGrid{min-width:0}
+.dashNav button{min-width:0;overflow:hidden;text-overflow:ellipsis}
+@media(max-width:700px){
+  .studioDash{padding-bottom:10px}
+  .dashHeader{padding-left:14px!important;padding-right:14px!important}
+  .dashStats{grid-template-columns:1fr!important;gap:9px!important}
+  .dashGrid{grid-template-columns:1fr!important;gap:12px!important}
+  .dashNav{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:9px!important}
+  .dashNav button{min-height:82px!important;padding:10px 5px!important;font-size:20px!important}
+  .dashNav button span{font-size:8px!important;letter-spacing:.7px!important}
+  .dashFooter{padding:14px!important}
+  .dashFooterActions{display:grid!important;grid-template-columns:108px minmax(0,1fr)!important;gap:9px!important}
+  .dashFooterActions button{min-width:0!important}
+  .metricGrid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+}
+@media(min-width:701px){.dashNav{grid-template-columns:repeat(7,minmax(0,1fr))!important}}
