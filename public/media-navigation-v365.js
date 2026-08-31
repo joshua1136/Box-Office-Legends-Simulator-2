@@ -1,0 +1,13 @@
+/* BOLS MEDIA v365 — visible content destinations */
+(function(){
+ function init(){
+  if(document.getElementById('bm-content-navigation')) return;
+  const media=document.querySelector('#mediaHub,[data-media-root],main'); if(!media) return;
+  const wrap=document.createElement('div'); wrap.id='bm-content-navigation';
+  wrap.innerHTML='<div class="bm-section-label">Browse Media</div><div class="bm-content-nav"><button class="active" data-bmcat="all">All</button><button data-bmcat="trailers">🎞️ Trailers</button><button data-bmcat="teasers">🎬 Teasers</button><button data-bmcat="shorts">⚡ Shorts</button><button data-bmcat="live">🔴 Live</button><button data-bmcat="community">💬 Community</button><button data-bmcat="creators">👥 Creators</button></div><div class="bm-section-label">Your Media</div><div class="bm-destination-grid"><button class="bm-destination" data-bmdest="channels"><span class="ico">📺</span><strong>Channels</strong><small>Browse studios & creators</small></button><button class="bm-destination" data-bmdest="videos"><span class="ico">▶️</span><strong>Videos</strong><small>Trailers, reviews & more</small></button><button class="bm-destination" data-bmdest="creators"><span class="ico">👥</span><strong>Creators</strong><small>Reactions & analysis</small></button><button class="bm-destination" data-bmdest="community"><span class="ico">💬</span><strong>Community</strong><small>Posts, polls & discussions</small></button></div>';
+  const anchor=media.firstElementChild; media.insertBefore(wrap,anchor||null);
+  wrap.querySelectorAll('[data-bmcat]').forEach(b=>b.onclick=()=>{wrap.querySelectorAll('[data-bmcat]').forEach(x=>x.classList.remove('active'));b.classList.add('active');const type=b.dataset.bmcat;if(type==='creators'&&window.openCreatorNetwork)window.openCreatorNetwork();else if(type==='community'&&window.openCommunity)window.openCommunity();else if(type==='live'&&window.openMediaLive)window.openMediaLive();else if(window.filterMediaContent)window.filterMediaContent(type);});
+  wrap.querySelectorAll('[data-bmdest]').forEach(b=>b.onclick=()=>{const d=b.dataset.bmdest;if(d==='creators'&&window.openCreatorNetwork)window.openCreatorNetwork();else if(d==='community'&&window.openCommunity)window.openCommunity();else if(d==='videos'&&window.openMediaVideos)window.openMediaVideos();else if(d==='channels'&&window.openMediaChannels)window.openMediaChannels();});
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
+})();
