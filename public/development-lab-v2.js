@@ -8,7 +8,7 @@
   window.showFilmDevelopmentLab=function(state,film){
     const e=document.createElement('div');e.className='modal developmentLabModal';
     const render=()=>{
-      const quality=clamp((Number(film.story||50)+Number(film.direction||50)+Number(film.acting||50)+Number(film.visuals||50)+Number(film.music||50)+Number(film.vfx||50))/6);
+      const engineMetrics=window.BOLS2MovieEngine?.outlook(state,film)||null;const quality=clamp(engineMetrics?.quality||((Number(film.story||50)+Number(film.direction||50)+Number(film.acting||50)+Number(film.visuals||50)+Number(film.music||50)+Number(film.vfx||50))/6));
       const casting=castScore(film),script=clamp(film.story||50),marketing=marketingScore(film),hype=clamp(film.hype||0),audience=clamp(Number(film.audience||50)+Number(film.audienceBonus||0));
       const history=(film.history||[]).slice(-5).reverse();
       e.innerHTML=`<div class="panel developmentLabPanel">
