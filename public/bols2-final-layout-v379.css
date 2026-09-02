@@ -1,0 +1,32 @@
+/* BOLS2 v379 — final mobile layout guardrails. Removes horizontal overflow and keeps Media contained to its own modal. */
+html,body{overflow-x:hidden!important;max-width:100%;}
+.mediaHubModal{position:fixed!important;inset:0!important;width:100vw!important;height:100dvh!important;overflow:hidden!important;box-sizing:border-box!important;}
+.mediaHubModal .mediaHubPanel{width:100%!important;max-width:1100px!important;height:100dvh!important;max-height:100dvh!important;margin:0 auto!important;box-sizing:border-box!important;overflow-x:hidden!important;overflow-y:auto!important;border-radius:0!important;}
+.mediaHubModal .mediaContent{width:100%!important;max-width:100%!important;min-width:0!important;box-sizing:border-box!important;overflow-x:hidden!important;}
+.mediaHubModal .mediaContent>*{max-width:100%!important;box-sizing:border-box!important;}
+.mediaV377,.mediaV377 section,.mediaV377 .v377Hero,.mediaV377 .v377CommunityGrid{max-width:100%!important;min-width:0!important;box-sizing:border-box!important;}
+.v377Hero{overflow:hidden!important;}
+.v377HeroMain,.v377HeroSide{min-width:0!important;max-width:100%!important;box-sizing:border-box!important;}
+.v377Sub{max-width:100%!important;overflow:hidden!important;}
+.v377PillRail,.v377Rail{max-width:100%!important;min-width:0!important;overflow-x:auto!important;overflow-y:hidden!important;scrollbar-width:none!important;}
+.v377PillRail::-webkit-scrollbar,.v377Rail::-webkit-scrollbar{display:none!important;}
+.v377Card{min-width:0!important;box-sizing:border-box!important;}
+@media(max-width:700px){
+  .mediaHubModal .mediaHubPanel{border-radius:0!important;}
+  .mediaV377{padding:0 14px 28px!important;}
+  .v377Hero{display:block!important;padding:20px!important;}
+  .v377HeroSide{display:grid!important;grid-template-columns:1fr 1fr!important;gap:8px!important;margin-top:16px!important;}
+  .v377Signal{min-width:0!important;}
+  .v377HeroMain>b{display:block!important;font-size:clamp(26px,7vw,42px)!important;line-height:1.05!important;max-width:100%!important;}
+  .v377Sub{display:block!important;line-height:1.45!important;}
+  .v377Rail{display:flex!important;gap:10px!important;padding-bottom:4px!important;}
+  .v377Card{flex:0 0 min(78vw,280px)!important;width:min(78vw,280px)!important;}
+  .v377CommunityGrid{display:block!important;}
+  .v377Side{margin-top:14px!important;}
+  .v377PillRail{padding-bottom:6px!important;}
+}
+@media(min-width:701px){
+  .mediaHubModal .mediaHubPanel{margin:10px auto!important;height:calc(100dvh - 20px)!important;max-height:calc(100dvh - 20px)!important;border-radius:24px!important;}
+}
+/* Never allow a legacy streaming card to occupy the dashboard. */
+#bols-stream-v2,.bsv2{display:none!important;}
