@@ -25,7 +25,19 @@ async function sparql(query) {
   return j?.results?.bindings || [];
 }
 
-async function wikipediaImage(title, preferPoster=false) {
+async function wikipediaImage(title, preferPoster=false, year=0) {
+  const wikiTitles = [];
+  if (year) wikiTitles.push(`${title} (${year} film)`);
+  wikiTitles.push(title);
+  for (const wt of wikiTitles) {
+    try {
+      const u = 'https://en.wikipedia.org/api/rest_v1/page/summary/' + encodeURIComponent(wt);
+      const j = await getJson(u);
+      const img = j?.thumbnail?.source || j?.originalimage?.source;
+      if (img && /poster|cover|film|movie/i.test(String(img))) return img;
+      if (img && !preferPoster) return img;
+    } catch (_) {}
+  }
   if (preferPoster) {
     try {
       const q = '"' + title + '" poster';
@@ -57,7 +69,7 @@ export default async function(req, res) {
     if (mode === 'film') {
       const safeTitle = title.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
       const yearFilter = year ? `FILTER(YEAR(?date) = ${Math.max(1800, Math.min(2100, year))})` : '';
-      const q = `SELECT DISTINCT ?film ?filmLabel ?actor ?actorLabel ?actorImage WHERE { ?film wdt:P31/wdt:P279* wd:Q11424; rdfs:label "${safeTitle}"@en; wdt:P577 ?date; wdt:P161 ?actor. OPTIONAL { ?actor wdt:P18 ?actorImage } ${yearFilter} SERVICE wikibase:label { bd:serviceParam wikibase:language "en". } } ORDER BY ?date LIMIT 40`;
+      const q = `SELECT DISTINCT ?film ?filmLabel ?actor ?actorLabel ?characterLabel ?actorImage WHERE { ?film wdt:P31/wdt:P279* wd:Q11424; rdfs:label "${safeTitle}"@en; wdt:P577 ?date; p:P161 ?cast. ?cast ps:P161 ?actor. ?film rdfs:label ?filmLabel FILTER(LANG(?filmLabel)="en"). ?actor rdfs:label ?actorLabel FILTER(LANG(?actorLabel)="en"). OPTIONAL { ?cast pq:P453 ?character. ?character rdfs:label ?characterLabel FILTER(LANG(?characterLabel)="en") } OPTIONAL { ?actor wdt:P18 ?actorImage } ${yearFilter} } ORDER BY ?date LIMIT 40`;
       const rows = await sparql(q);
       const seen = new Set();
       const cast = rows.map(r => ({
@@ -66,7 +78,7 @@ export default async function(req, res) {
         character: bind(r, 'characterLabel'),
         image: bind(r, 'actorImage')
       })).filter(x => x.name && !seen.has(x.name) && seen.add(x.name));
-      const poster = await wikipediaImage(title, true);
+      const poster = await wikipediaImage(title, true, year);
       return res.json({ title, year: year || null, poster, cast, source: 'Wikidata + Wikipedia/Wikimedia' });
     }
 
