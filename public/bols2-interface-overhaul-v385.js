@@ -31,7 +31,7 @@ overlay.querySelectorAll('[data-choice]').forEach(function(btn){btn.onclick=func
 }
 function install(){
 if(document.__bols385Installed)return;document.__bols385Installed=true;
-document.addEventListener('click',function(e){if(forwarding)return;const b=e.target.closest&&e.target.closest('[data-section]');if(!b)return;const s=String(b.dataset.section||'').toUpperCase();if(!M[s])return;e.preventDefault();e.stopImmediatePropagation();if(s==='MEDIA'){const openMedia=window.openBOLSMedia||window.openMediaChannelEditor;if(typeof openMedia==='function'){openMedia();}else{setTimeout(function(){(window.openBOLSMedia||window.openMediaChannelEditor)?.();},0);}return;}openDeck(s,b);},true);
+document.addEventListener('click',function(e){if(forwarding)return;const b=e.target.closest&&e.target.closest('[data-section]');if(!b)return;const s=String(b.dataset.section||'').toUpperCase();if(!M[s])return;e.preventDefault();e.stopImmediatePropagation();const state=window.__BOL_STATE__||window.state||{};if(s==='MEDIA'){const openMedia=window.openBOLSMedia;if(typeof openMedia==='function'){openMedia('home');}return;}if(typeof window.openSection==='function'){window.openSection(state,s);}else{openDeck(s,b);}},true);
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install);else install();
 window.BOLS2_MODULES=M;
