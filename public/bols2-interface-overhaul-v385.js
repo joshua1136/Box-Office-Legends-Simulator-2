@@ -28,10 +28,14 @@
   function install(){
     if(document.__bols402DirectNavInstalled)return;
     document.__bols402DirectNavInstalled=true;
-    /* Do NOT intercept dashboard section clicks here. The main game already wires
-       each data-section button to openSection(); intercepting in capture phase
-       prevents the target's onclick from ever firing. This layer only removes
-       legacy launchers that should no longer exist. */
+    /* Do NOT intercept dashboard section clicks in capture phase. The main game owns
+       navigation. MEDIA gets a bubble-phase fallback because older builds can lose
+       the dynamically assigned onclick during dashboard re-renders. */
+    document.addEventListener('click',function(e){
+      const b=e.target?.closest?.('button[data-section="MEDIA"]');
+      if(!b || b.closest('.bm398,.bmModalLayer'))return;
+      if(typeof window.openBOLSMedia==='function')window.openBOLSMedia('home');
+    },false);
     /* Safety net for any historical script that tries to inject the old four-button deck. */
     new MutationObserver(mutations=>{
       mutations.forEach(m=>m.addedNodes.forEach(n=>{
