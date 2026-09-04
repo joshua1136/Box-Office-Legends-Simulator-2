@@ -26,22 +26,23 @@ async function sparql(query) {
 }
 
 async function wikipediaImage(title, preferPoster=false) {
+  if (preferPoster) {
+    try {
+      const q = '"' + title + '" poster';
+      const u = 'https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrsearch=' + encodeURIComponent(q) + '&gsrnamespace=6&gsrlimit=12&prop=imageinfo&iiprop=url&iiurlwidth=900&format=json&origin=*';
+      const j = await getJson(u);
+      const pages = Object.values(j?.query?.pages || {});
+      const pick = pages.find(p => /poster/i.test(p?.title || '')) || pages[0];
+      if (pick?.imageinfo?.[0]?.thumburl || pick?.imageinfo?.[0]?.url) return pick.imageinfo[0].thumburl || pick.imageinfo[0].url;
+    } catch (_) {}
+  }
   const exact = WIKI + '?action=query&prop=pageimages&titles=' + encodeURIComponent(title) + '&pithumbsize=1200&format=json&origin=*';
   try {
     const j = await getJson(exact);
     const p = Object.values(j?.query?.pages || {})[0];
     if (p?.thumbnail?.source) return p.thumbnail.source;
   } catch (_) {}
-
-  if (!preferPoster) return null;
-  try {
-    const q = title + ' film poster';
-    const u = 'https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrsearch=' + encodeURIComponent(q) + '&gsrnamespace=6&gsrlimit=8&prop=imageinfo&iiprop=url&iiurlwidth=900&format=json&origin=*';
-    const j = await getJson(u);
-    const pages = Object.values(j?.query?.pages || {});
-    const pick = pages.find(p => /poster|film|movie/i.test(p?.title || '')) || pages[0];
-    return pick?.imageinfo?.[0]?.thumburl || pick?.imageinfo?.[0]?.url || null;
-  } catch (_) { return null; }
+  return null;
 }
 
 function bind(v, key) { return v?.[key]?.value || null; }
@@ -56,7 +57,7 @@ export default async function(req, res) {
     if (mode === 'film') {
       const safeTitle = title.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
       const yearFilter = year ? `FILTER(YEAR(?date) = ${Math.max(1800, Math.min(2100, year))})` : '';
-      const q = `SELECT ?film ?filmLabel ?actor ?actorLabel ?characterLabel ?actorImage WHERE { ?film wdt:P31/wdt:P279* wd:Q11424; rdfs:label "${safeTitle}"@en; wdt:P577 ?date; p:P161 ?cast. ?cast ps:P161 ?actor. OPTIONAL { ?cast pq:P453 ?character. ?character rdfs:label ?characterLabel FILTER(LANG(?characterLabel)="en") } OPTIONAL { ?actor wdt:P18 ?actorImage } FILTER(LANG(?filmLabel)="en") ${yearFilter} SERVICE wikibase:label { bd:serviceParam wikibase:language "en". } } ORDER BY ?date LIMIT 40`;
+      const q = `SELECT DISTINCT ?film ?filmLabel ?actor ?actorLabel ?actorImage WHERE { ?film wdt:P31/wdt:P279* wd:Q11424; rdfs:label "${safeTitle}"@en; wdt:P577 ?date; wdt:P161 ?actor. OPTIONAL { ?actor wdt:P18 ?actorImage } ${yearFilter} SERVICE wikibase:label { bd:serviceParam wikibase:language "en". } } ORDER BY ?date LIMIT 40`;
       const rows = await sparql(q);
       const seen = new Set();
       const cast = rows.map(r => ({
