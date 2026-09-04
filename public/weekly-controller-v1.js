@@ -17,8 +17,32 @@
     modal.dataset.weeklyController='v1';
     modal.dataset.coreWeek=String(Number(state?.week||1));
     window.__BOL_WEEKLY_CORE_CONTINUE__=()=>{
-      try{coreContinue.call(btn,new MouseEvent('click',{bubbles:true,cancelable:true}));}
-      catch(err){console.error('Weekly core continuation failed',err);try{modal.remove()}catch{};try{window.start?.(state)}catch{}}
+      if(window.__BOL_WEEKLY_CORE_RUNNING)return;
+      window.__BOL_WEEKLY_CORE_RUNNING=true;
+      try{
+        /* Call the authoritative handler directly. Do not synthesize a DOM click: Android WebViews can behave differently around synthetic MouseEvents. */
+        coreContinue.call(btn);
+      }catch(err){
+        console.error('Weekly core continuation failed',err);
+        window.__BOL_WEEKLY_CORE_RUNNING=false;
+        try{modal.remove()}catch{}
+        try{window.start?.(state)}catch{}
+        return;
+      }
+      /* The core handler is synchronous; verify that it actually moved the game forward. */
+      setTimeout(()=>{
+        const live=window.__BOL_STATE__||state;
+        const before=Number(state?.week||1), now=Number(live?.week||1);
+        const expected=before>=52?1:before+1;
+        if(now===expected || Number(live?.year||1)>Number(state?.year||1)){
+          window.__BOL_WEEKLY_CORE_RUNNING=false;
+          return;
+        }
+        console.error('Weekly progression did not advance after the authoritative Continue handler.',{before,now,expected});
+        window.__BOL_WEEKLY_CORE_RUNNING=false;
+        /* Recovery re-enters the same core handler once, never a second weekly controller. */
+        try{coreContinue.call(btn);}catch(retryErr){console.error('Weekly progression recovery failed',retryErr);try{window.start?.(state)}catch{}}
+      },80);
     };
     const openEvent=()=>{
       if(btn.dataset.busy==='1')return;
