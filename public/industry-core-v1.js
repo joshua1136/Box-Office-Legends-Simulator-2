@@ -26,6 +26,9 @@ function slate(g){
  const year=num(g.year,1);
  try{if(typeof window.ensureRivalSlateYear==='function'){const x=window.ensureRivalSlateYear(g,year)||[];if(x.length)return x;}}catch(e){}
  const existing=Array.isArray(g.industry?.rivalSlate?.[String(year)])?g.industry.rivalSlate[String(year)]:[];
+ const aiProjects=Array.isArray(g.industry?.rivalAI?.projects)?g.industry.rivalAI.projects:[];
+ const aiSlate=aiProjects.filter(p=>p&&p.status!=='cancelled'&&Math.floor(num(p.targetReleaseAbs,0)/52)+1===year).map(p=>({id:p.id,studio:p.studio,studioId:p.studioId||p.studio,title:p.title,genre:p.genre,scale:p.scale,strength:p.qualitySeed,releaseYear:year,releaseWeek:(num(p.targetReleaseAbs,0)%52)+1,status:p.status==='released'?'released':'scheduled',scheduled:true,aiControlled:true}));
+ if(aiSlate.length)return aiSlate;
  if(existing.length)return existing;
  // Fallback archive/slate: guarantees every major studio has a visible, persistent filmography
  // even when an older save was created before the rival-slate generator existed.
