@@ -78,6 +78,7 @@ export default async function(req, res) {
         character: bind(r, 'characterLabel'),
         image: bind(r, 'actorImage')
       })).filter(x => x.name && !seen.has(x.name) && seen.add(x.name));
+      /* Film art is resolved independently from cast/person images. Prefer the exact year-specific Wikipedia film page, then a poster search, and never fall back to an actor image. */
       const poster = await wikipediaImage(title, true, year);
       return res.json({ title, year: year || null, poster, cast, source: 'Wikidata + Wikipedia/Wikimedia' });
     }
