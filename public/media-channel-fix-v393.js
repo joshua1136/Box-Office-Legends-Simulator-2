@@ -43,6 +43,9 @@ document.addEventListener('click',e=>{
   const kicker=launcher?.querySelector('.bolsLauncherKicker')?.textContent||'';
   if(!/· MEDIA\b/i.test(kicker))return;
   e.preventDefault();e.stopImmediatePropagation();
+  // Mark this click as fully handled so the legacy v385 target handler does not
+  // fire after this capture-phase router opens the media modal.
+  window.__BOLS_MEDIA_CATEGORY_HANDLED__=true;
   const index=[...launcher.querySelectorAll('.bolsCategoryCard')].indexOf(card);
   launcher.remove();
   const engine=E();
