@@ -23,15 +23,10 @@
   function install(){
     if(document.__bols402DirectNavInstalled)return;
     document.__bols402DirectNavInstalled=true;
-    document.addEventListener('click',function(e){
-      const b=e.target?.closest?.('[data-section]');
-      if(!b)return;
-      const section=String(b.dataset.section||'').toUpperCase();
-      if(!VALID.has(section))return;
-      e.preventDefault();
-      e.stopImmediatePropagation();
-      direct(section,b);
-    },true);
+    /* Do NOT intercept dashboard section clicks here. The main game already wires
+       each data-section button to openSection(); intercepting in capture phase
+       prevents the target's onclick from ever firing. This layer only removes
+       legacy launchers that should no longer exist. */
     /* Safety net for any historical script that tries to inject the old four-button deck. */
     new MutationObserver(mutations=>{
       mutations.forEach(m=>m.addedNodes.forEach(n=>{
