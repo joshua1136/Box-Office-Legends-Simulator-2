@@ -17,21 +17,21 @@ const names=['The Last Horizon','Midnight Protocol','Kingdom of Ash','After the 
 const pick=(a,n)=>a[Math.abs(Number(n)||0)%a.length];
 function allFilms(s){return [...(s.films||[]),...(s.filmography||[])].filter((f,i,a)=>f&&f.title&&a.findIndex(x=>String(x.id)===String(f.id))===i)}
 function rivalFilmCount(s,studio){return allFilms(s).filter(f=>String(f.studio||f.productionStudio||f.industryStudio||'')===String(studio)).length}
-function makeRivalFilms(s){
- let changed=false; s.films=Array.isArray(s.films)?s.films:[];s.filmography=Array.isArray(s.filmography)?s.filmography:[];const now=abs(s),year=Number(s.year||1),week=Number(s.week||1);
- studios().forEach((st,si)=>{
-   const existing=rivalFilmCount(s,st.name);const target=18+(si%4);if(existing>=target)return;
-   const need=Math.min(2,target-existing);for(let k=0;k<need;k++){
-     const seq=existing+k+1,genre=pick(st.genres||genres,now+si*7+seq),title=pick(names,si*11+now+seq*3)+' '+(seq%4===0?'II':seq%4===1?'':'');
-     const id=`rival-${st.name.toLowerCase().replace(/[^a-z0-9]+/g,'-')}-${year}-${seq}`;
-     if(allFilms(s).some(f=>String(f.id)===id))continue;
-     const budget=Math.round((28+((si*17+seq*13)%150))*1000000);const quality=Math.max(48,Math.min(92,Math.round(st.creative*.72+((now+seq*9)%18))));const audience=Math.max(42,Math.min(96,Math.round(st.marketing*.45+st.distribution*.3+((seq*11)%20))));
-     const leadRelease=Math.max(week+4,((seq*7+si*9)%52)+1);const f={id,title:title.trim(),genre,budget,marketingBudget:Math.round(budget*(.35+st.marketing/500)),quality,audience,starPower:Math.max(45,Math.min(94,Math.round(st.reputation*.55+((seq*7)%25)))),buzz:Math.round((st.marketing+st.reputation)/2),hype:Math.round((st.marketing+st.reputation)/2),stage:leadRelease<=week?'released':'marketing',releaseWeek:leadRelease,releaseYear:year,studio:st.name,productionStudio:st.name,industryStudio:st.name,isRival:true,rivalStudio:true,boxOffice:0,finalBoxOffice:0,history:[],industry:{media:{mediaAwareness:0,mediaSentiment:0,totalReach:0,weeklyHistory:{}}}};
-     s.filmography.push(f);changed=true;
-   }
- });return changed}
+/* RETIRED: this legacy media bridge used to manufacture rival films directly inside the player's filmography. Rival films now belong exclusively to the canonical industry/rival-production collection. */
+function makeRivalFilms(s){return false}
+function purgeLegacyRivalFilms(s){
+ s.filmography=Array.isArray(s.filmography)?s.filmography:[];
+ const rivalNames=new Set(studios().map(x=>String(x?.name||'').trim().toLowerCase()).filter(Boolean));
+ const before=s.filmography.length;
+ s.filmography=s.filmography.filter(f=>{
+   const studio=String(f?.studio||f?.productionStudio||f?.industryStudio||'').trim().toLowerCase();
+   const id=String(f?.id||'').toLowerCase();
+   return !(f?.isRival===true||f?.rivalStudio===true||id.startsWith('rival-')||(studio&&rivalNames.has(studio)));
+ });
+ return s.filmography.length!==before;
+}
 function ensureMediaRecord(d,f,now){const existing=(d.content||[]).find(c=>String(c.filmId)===String(f.id)&&c.autoIndustryContent);if(existing)return false;d.content.unshift({id:`industry-content-${f.id}`,kind:'video',type:'Official Trailer',title:`${f.title} — Official Trailer`,description:`${f.studio} unveils the first look at ${f.title}.`,text:`${f.studio} unveils the first look at ${f.title}.`,studio:f.studio,filmId:f.id,filmTitle:f.title,genre:f.genre,createdAbs:Math.max(1,now-3),createdWeek:((Math.max(1,now-3)-1)%52)+1,createdYear:Math.floor((Math.max(1,now-4)-1)/52)+1,status:'PUBLISHED',views:0,likes:0,comments:0,shares:0,saves:0,weeklyHistory:{},sentiment:0,creatorCoverage:[],autoIndustryContent:true});return true}
-function sync(){const s=S();if(!s||!s.studioName)return;const d=window.BOLSMediaEngine?.read?.();if(!d)return;d.content=Array.isArray(d.content)?d.content:[];d.game=d.game||{};d.game.integration=d.game.integration||{};const now=abs(s);let changed=makeRivalFilms(s);const films=allFilms(s);films.filter(f=>f.isRival||f.rivalStudio).slice(-80).forEach(f=>{if(ensureMediaRecord(d,f,now))changed=true});
+function sync(){const s=S();if(!s||!s.studioName)return;const d=window.BOLSMediaEngine?.read?.();if(!d)return;d.content=Array.isArray(d.content)?d.content:[];d.game=d.game||{};d.game.integration=d.game.integration||{};const now=abs(s);let changed=purgeLegacyRivalFilms(s);const films=allFilms(s);films.filter(f=>f.isRival||f.rivalStudio).slice(-80).forEach(f=>{if(ensureMediaRecord(d,f,now))changed=true});
  /* Existing synthetic display records are converted into real-world references when a matching game film exists. */
  d.content.forEach(c=>{if(!c.filmId||c.autoIndustryContent)return;const f=films.find(x=>String(x.id)===String(c.filmId));if(f&&c.studio!==f.studio){c.studio=f.studio;c.filmTitle=f.title;c.genre=f.genre;changed=true}});
  if(changed){s.films=s.films||[];d.game.integration.lastSyncAbs=now;window.BOLSMediaEngine.commit(d);try{window.saveCurrent?.(s,true)}catch{}}
