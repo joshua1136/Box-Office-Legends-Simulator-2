@@ -23,8 +23,21 @@ function ensure(g){
  return c;
 }
 function slate(g){
- try{if(typeof window.ensureRivalSlateYear==='function')return window.ensureRivalSlateYear(g,num(g.year,1))||[]}catch(e){}
- return Array.isArray(g.industry?.rivalSlate?.[String(g.year)])?g.industry.rivalSlate[String(g.year)]:[];
+ const year=num(g.year,1);
+ try{if(typeof window.ensureRivalSlateYear==='function'){const x=window.ensureRivalSlateYear(g,year)||[];if(x.length)return x;}}catch(e){}
+ const existing=Array.isArray(g.industry?.rivalSlate?.[String(year)])?g.industry.rivalSlate[String(year)]:[];
+ if(existing.length)return existing;
+ // Fallback archive/slate: guarantees every major studio has a visible, persistent filmography
+ // even when an older save was created before the rival-slate generator existed.
+ g.industry=g.industry||{};g.industry.rivalSlate=g.industry.rivalSlate||{};
+ const studios=A.length?A:[];
+ const genres=['Action','Drama','Comedy','Thriller','Horror','Romance','Adventure','Fantasy','Family','Sci-Fi'];
+ const titleA=['After the Storm','The Last Horizon','Midnight Run','Golden Hour','The Long Way Home','City of Ash','North Star','Second Chances','Empire of Dust','Paper Kingdom','The Outsiders','Silent Echo','Red Meridian','Summer Lights','Black River','Open Sky','Final Chapter','Wild Hearts','Deep Blue','The Crossing'];
+ const titleB=['Legacy','Protocol','Hearts','Frontier','Signal','Kingdom','Promise','Velocity','Shadow','Fire','Dreams','Origins','Destiny','Awakening','Paradise','Reckoning','Gravity','Pursuit','Voyage','Fate'];
+ const hash=s=>{let h=2166136261;for(let i=0;i<String(s).length;i++){h^=String(s).charCodeAt(i);h=Math.imul(h,16777619)}return h>>>0};
+ const generated=[];
+ studios.forEach((studio,si)=>{for(let i=0;i<20;i++){const h=hash(`${studio.name}|${year}|${i}`),genre=genres[(h+si)%genres.length],week=1+(h%52),strength=Math.max(58,Math.min(92,Number(studio.reputation||70)+(h%17)-8)),scale=strength>=82?'major':strength>=70?'wide':'limited';generated.push({id:`rival-${studio.name.replace(/[^a-z0-9]/gi,'').toLowerCase()}-${year}-${String(i+1).padStart(2,'0')}`,title:`${titleA[(h+i)%titleA.length]}: ${titleB[(h>>3)%titleB.length]}`,studio:studio.name,studioId:studio.id||studio.name,studioType:studio.type||'Major Studio',genre,scale,strength,quality:Math.min(95,strength+(h%9)-4),audience:Math.min(95,strength+(h%13)-6),starPower:Math.min(95,strength+(h%15)-7),marketingScore:Math.min(95,strength+(h%11)-5),hype:35+(h%25),buzz:Math.min(95,strength+(h%17)-8),budget:Math.round((scale==='major'?120:scale==='wide'?65:25)*(0.85+(h%31)/100)*1e6),marketingBudget:Math.round((scale==='major'?35:scale==='wide'?18:7)*(0.85+(h%21)/100)*1e6),releaseWeek:week,releaseYear:year,status:week<=Number(g.week||1)?'released':'scheduled',source:'fallback-industry-archive'});}});
+ g.industry.rivalSlate[String(year)]=generated;return generated;
 }
 function ensureCollections(g){
  if(!Array.isArray(g.industryFilms))g.industryFilms=[];
