@@ -3,7 +3,7 @@
 'use strict';
 const M={
 MOVIES:['🎬','Movies','Build, manage and archive your film slate',[['🎬','Film Slate','Active projects, drafts and movie history.'],['✍️','Development','Create concepts, stories and characters.'],['👥','Casting','Connect characters with talent.'],['📅','Release','Choose strategy, timing and campaign.']]],
-MEDIA:['▶️','BOLS Media','Run your studio media presence and audience',[['📺','Channels','Studio and creator channels.'],['🎬','Video Studio','Trailers, interviews and film content.'],['💬','Community','Posts, polls and fan conversation.'],['📈','Audience','Reach, engagement and media performance.']]],
+MEDIA:['▶️','BOLS Media','Open the complete BOLS Media platform.',[]],
 TRENDS:['📈','Market Trends','Read demand before committing money and time',[['🔥','Genre Demand','See which genres are rising or falling.'],['📅','Calendar','Holidays and seasonal opportunities.'],['🌎','Market Health','Understand the wider theatrical market.'],['🎯','Strategy','Use trends to time your releases.']]],
 BOXOFFICE:['🍿','Box Office','Track theatrical performance and lifetime results',[['📊','Performance','Weekly grosses and momentum.'],['🌎','Worldwide','Domestic and international results.'],['🏆','Rankings','Compare films by gross.'],['📋','Film Records','Open the complete performance ledger.']]],
 STREAMS:['📺','Streaming','Manage the second life of your films',[['📚','Catalog','Films eligible for streaming.'],['🤝','Deals','Platform rights and agreements.'],['⚔️','Bidding','Let platforms compete for your films.'],['📊','Performance','Weekly streams and revenue.']]],
@@ -31,7 +31,7 @@ overlay.querySelectorAll('[data-choice]').forEach(function(btn){btn.onclick=func
 }
 function install(){
 if(document.__bols385Installed)return;document.__bols385Installed=true;
-document.addEventListener('click',function(e){if(forwarding)return;const b=e.target.closest&&e.target.closest('[data-section]');if(!b)return;const s=String(b.dataset.section||'').toUpperCase();if(!M[s])return;e.preventDefault();e.stopImmediatePropagation();openDeck(s,b);},true);
+document.addEventListener('click',function(e){if(forwarding)return;const b=e.target.closest&&e.target.closest('[data-section]');if(!b)return;const s=String(b.dataset.section||'').toUpperCase();if(!M[s])return;e.preventDefault();e.stopImmediatePropagation();if(s==='MEDIA'){const openMedia=window.openBOLSMedia||window.openMediaChannelEditor;if(typeof openMedia==='function'){openMedia();}else{setTimeout(function(){(window.openBOLSMedia||window.openMediaChannelEditor)?.();},0);}return;}openDeck(s,b);},true);
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install);else install();
 window.BOLS2_MODULES=M;
