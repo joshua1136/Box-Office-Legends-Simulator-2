@@ -27,7 +27,7 @@ overlay.innerHTML='<div class="bolsLauncherPanel" role="dialog" aria-modal="true
 document.body.appendChild(overlay);
 const close=function(){if(overlay){overlay.remove();overlay=null;}};
 overlay.querySelector('.bolsLauncherClose').onclick=close;overlay.querySelector('.bolsLauncherCloseText').onclick=close;overlay.addEventListener('click',function(e){if(e.target===overlay)close();});
-overlay.querySelectorAll('[data-choice]').forEach(function(btn){btn.onclick=function(){close();forwarding=true;try{target.click();}finally{setTimeout(function(){forwarding=false;},0);}};});
+overlay.querySelectorAll('[data-choice]').forEach(function(btn){btn.onclick=function(ev){ev.preventDefault();ev.stopPropagation();const choice=Number(btn.dataset.choice);close();if(section==='MEDIA'){const tabs=['channel','videos','community','analytics'];const openMedia=window.openBOLSMedia||window.openMediaCreator;if(typeof openMedia==='function'){openMedia();setTimeout(function(){const modal=document.querySelector('.mediaRebuildModal');const tab=modal&&modal.querySelector('.mrTabs button[data-t="'+tabs[choice]+'"]');if(tab)tab.click();},30);}return;}forwarding=true;try{target.click();}finally{setTimeout(function(){forwarding=false;},0);}};});
 }
 function install(){
 if(document.__bols385Installed)return;document.__bols385Installed=true;
