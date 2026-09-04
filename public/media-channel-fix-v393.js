@@ -32,5 +32,30 @@ document.addEventListener('click',e=>{
   // after stopping propagation so the underlying game dashboard cannot react.
   if(typeof b.onclick==='function')b.onclick();
 },{capture:true});
+// v393.1: The category-first MEDIA launcher is owned by the v385 command-deck layer.
+// Its category cards previously closed the launcher and re-clicked the parent MEDIA button,
+// which correctly returned to the game dashboard but never opened the requested media department.
+// Route each MEDIA category directly into the unified media engine instead.
+document.addEventListener('click',e=>{
+  const card=e.target?.closest?.('.bolsModuleLauncher .bolsCategoryCard');
+  if(!card)return;
+  const launcher=card.closest('.bolsModuleLauncher');
+  const kicker=launcher?.querySelector('.bolsLauncherKicker')?.textContent||'';
+  if(!/· MEDIA\b/i.test(kicker))return;
+  e.preventDefault();e.stopImmediatePropagation();
+  const index=[...launcher.querySelectorAll('.bolsCategoryCard')].indexOf(card);
+  launcher.remove();
+  const engine=E();
+  if(!engine||typeof engine.open!=='function')return;
+  engine.open();
+  const tabs={0:'channel',1:'videos',2:'community',3:'analytics'};
+  const tab=tabs[index]||'home';
+  setTimeout(()=>{
+    const modal=document.querySelector('.mediaRebuildModal');
+    const btn=modal?.querySelector(`.mrTabs button[data-t="${tab}"]`);
+    if(btn&&typeof btn.onclick==='function')btn.onclick();
+    else if(btn)btn.click();
+  },0);
+},{capture:true});
 window.__BOLS_CHANNEL_FIX_V393__=true;
 })();
