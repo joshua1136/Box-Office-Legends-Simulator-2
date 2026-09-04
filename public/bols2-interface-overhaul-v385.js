@@ -6,7 +6,12 @@
     const state=window.__BOL_STATE__||window.state;
     if(!state)return;
     if(section==='MEDIA'){
-      if(typeof window.openBOLSMedia==='function')window.openBOLSMedia('home');
+      if(typeof window.openBOLSMedia==='function'){
+        window.openBOLSMedia('home');
+      } else {
+        /* Let the game's native MEDIA handler run if the media bundle has not loaded yet. */
+        if(target&&typeof target.click==='function')setTimeout(()=>target.click(),0);
+      }
       return;
     }
     if(typeof window.openSection==='function'){
