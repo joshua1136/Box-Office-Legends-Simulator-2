@@ -34,12 +34,32 @@ attachWikiImage(e.querySelector(`[data-person-image="${CSS.escape(name)}"]`),nam
         wikiImage(name).then(url=>{
           if(!url)return;
           const img=new Image();img.crossOrigin='anonymous';img.onload=()=>{
-            const c=canvas.getContext('2d'),low=document.createElement('canvas'),lc=low.getContext('2d'),W=32,H=40;
+            const c=canvas.getContext('2d'),low=document.createElement('canvas'),lc=low.getContext('2d'),W=48,H=56;
             low.width=W;low.height=H;lc.imageSmoothingEnabled=true;
-            const side=Math.min(img.width,img.height*.8),sx=(img.width-side)/2,sy=Math.max(0,(img.height-side*.8)*.18);
-            lc.drawImage(img,sx,sy,side,side*.8,0,0,W,H);
+            // Make a deliberate head-and-shoulders crop instead of a random-looking full-photo crop.
+            const side=Math.min(img.width,img.height),sx=(img.width-side)/2,sy=Math.max(0,(img.height-side)*.12);
+            lc.drawImage(img,sx,sy,side,side,0,0,W,H);
+            const px=lc.getImageData(0,0,W,H),d=px.data;
+            // Reduce the source to a compact game palette while preserving facial planes and hair shape.
+            for(let i=0;i<d.length;i+=4){
+              const r=d[i],g=d[i+1],b=d[i+2],mx=Math.max(r,g,b),mn=Math.min(r,g,b),l=(r+g+b)/3;
+              const q=v=>Math.round(v/24)*24;
+              d[i]=q(r);d[i+1]=q(g);d[i+2]=q(b);
+              if(l<48){d[i]*=.72;d[i+1]*=.72;d[i+2]*=.72}
+              if(mx-mn<18&&l>175){d[i]=Math.min(255,d[i]+8);d[i+1]=Math.min(255,d[i+1]+8);d[i+2]=Math.min(255,d[i+2]+8)}
+            }
+            lc.putImageData(px,0,0);
             c.imageSmoothingEnabled=false;
-            const paint=t=>{c.clearRect(0,0,64,80);const bob=Math.round(Math.sin(t/520)*1);c.save();c.translate(0,bob);c.drawImage(low,0,0,W,H,0,0,64,80);c.restore();requestAnimationFrame(paint)};
+            let blinkUntil=0;
+            const paint=t=>{
+              c.clearRect(0,0,64,80);
+              const bob=Math.round(Math.sin(t/700)*1);
+              c.save();c.translate(0,bob);c.drawImage(low,0,0,W,H,0,0,64,80);c.restore();
+              // Tiny arcade-style blink: a dark 1px eye line for a few frames, then back to the portrait.
+              if(t>blinkUntil && Math.floor(t/10)%900===0) blinkUntil=t+110;
+              if(t<blinkUntil){c.fillStyle='rgba(24,18,10,.9)';c.fillRect(22,35,5,1);c.fillRect(38,35,5,1)}
+              requestAnimationFrame(paint)
+            };
             requestAnimationFrame(paint);
             host.classList.add('isReady');
           };img.src=url;
