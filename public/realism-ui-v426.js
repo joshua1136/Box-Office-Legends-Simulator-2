@@ -27,28 +27,25 @@ function talentProfile(s,p,contextFilmId=null){const name=p?.name||p?.[0];if(!na
 const heroTitle=encodeURIComponent(name);
 const leonardoTest=String(name).toLowerCase().trim()==='leonardo dicaprio';
 const e=shell(`<div class="rxSheet"><button class="rxClose" data-rx-close>×</button><section class="rxHero rxTalentHero ${leonardoTest?'rxTalentTestLeonardo':''}"><div class="rxHeroBackdrop" data-person-image="${esc(name)}"></div><div class="rxHeroContent"><div class="rxIdentity">${leonardoTest?`<div class="rxPixelCharacter" data-pixel-talent="${esc(name)}"><canvas width="64" height="80"></canvas><span class="rxPixelShadow"></span><span class="rxPixelSpark">✦</span></div>`:`<div class="rxPortrait rxMissing" data-person-portrait="${esc(name)}">${esc(name[0]||'?')}</div>`}<div><div class="rxEyebrow">${esc(role)}</div><div class="rxTag">${esc(tier)}</div></div></div><h1>${esc(name)}</h1><p>${leonardoTest?'LEGENDARY TALENT · PIXEL CHARACTER':'Previous projects that highlight this talent\'s career.'}</p></div></section><div class="rxKpis"><div class="rxKpi"><small>Previous Projects</small><b>${top5.length}</b><span>Top 5 career highlights</span></div><div class="rxKpi"><small>Reported worldwide</small><b>${money(total)}</b><span>Combined listed grosses</span></div><div class="rxKpi"><small>IMDb average</small><b>${avg?avg.toFixed(1):'—'}</b><span>Rating snapshots</span></div><div class="rxKpi"><small>Your BOLS2 films</small><b>${gf.length}</b><span>Save-specific credits</span></div></div><div class="rxBody"><main class="rxMain"><section class="rxSection"><div class="rxSectionHead"><h3>Previous Project</h3><span>Top 5 Films · selected career highlights</span></div><div class="rxFilmGrid">${top5.map((f,i)=>`<button class="rxFilm" data-real-film="${esc(f.id)}" style="animation-delay:${Math.min(i,4)*35}ms"><div class="rxFilmArt" data-film-image="${esc(f.title)}"></div><div class="rxFilmRating">★ ${Number(f.imdbRating||0).toFixed(1)}</div><div class="rxFilmInfo"><b>${esc(f.title)}</b><small>${f.year||'—'} · ${esc(f.role||role)}<br>${money(f.worldwideBoxOffice||0)} worldwide</small></div></button>`).join('')||'<div class="rxNote">No previous projects are loaded for this talent yet.</div>'}</div></section>${gf.length?`<section class="rxSection"><div class="rxSectionHead"><h3>Your BOLS2 career</h3><span>Simulation only</span></div><div class="rxTimeline">${gf.slice().sort((a,b)=>Number(b.releaseYear||b.year||0)-Number(a.releaseYear||a.year||0)).map(f=>`<div class="rxTimelineRow"><div class="rxYear">${esc(f.releaseYear||f.year||'—')}</div><div><b>${esc(f.title||'Untitled Film')}</b><small>${esc(f.genre||'Film')} · ${money(f.finalBoxOffice||f.boxOffice||0)} box office</small></div></div>`).join('')}</div></section>`:''}</main><aside class="rxSide"><section class="rxSideSection"><h4>Market profile</h4><div class="rxStat"><span>Talent</span><b>${talent}/100</b></div><div class="rxBar"><i style="width:${talent}%"></i></div><div class="rxStat"><span>Popularity</span><b>${pop}/100</b></div><div class="rxBar"><i style="width:${pop}%"></i></div><div class="rxStat"><span>Market fee</span><b>${money(fee)}</b></div><div class="rxStat"><span>Specialties</span><b>${esc(genreList.slice(0,3).join(' · ')||'Versatile')}</b></div></section><section class="rxSideSection"><h4>Career benchmark</h4><div class="rxStat"><span>Highest grossing</span><b>${esc(best?.title||'—')}</b></div><div class="rxStat"><span>Best worldwide</span><b>${best?money(best.worldwideBoxOffice):'—'}</b></div><div class="rxStat"><span>Tracked IMDb avg.</span><b>${avg?avg.toFixed(1)+'/10':'—'}</b></div></section><section class="rxSideSection"><h4>Data integrity</h4><p class="rxNote">Real-world film data is informational and does not alter your save. BOLS2 fees, talent scores, availability, contracts and performance multipliers are simulated.</p><div class="rxSource"><strong>Sources:</strong> IMDb rating snapshots + reported box office data. Image references are loaded from Wikipedia/Wikimedia.</div></section></aside></div><footer class="rxFooter">${contextFilmId?'<button class="rxBtn primary" data-rx-hire>HIRE / VIEW CONTRACT →</button>':''}<button class="rxBtn" data-rx-close>CLOSE</button></footer></div>`);
-attachWikiImage(e.querySelector(`[data-person-image="${CSS.escape(name)}"]`),name,'hero');attachWikiImage(e.querySelector(`[data-person-portrait="${CSS.escape(name)}"]`),name,'portrait');top5.forEach(f=>attachFilmPoster(e.querySelector(`[data-film-image="${CSS.escape(f.title)}"]`),f));
+attachWikiImage(e.querySelector(`[data-person-image="${CSS.escape(name)}"]`),name,'hero');
+if(leonardoTest){
+  // Use a stable Wikimedia portrait for the Leonardo prototype so the backdrop is a clean, recognizable head-and-shoulders shot.
+  setImage(e.querySelector(`[data-person-image="${CSS.escape(name)}"]`),'https://commons.wikimedia.org/wiki/Special:Redirect/file/Leonardo%20DiCaprio%202010.jpg','cover');
+}
+attachWikiImage(e.querySelector(`[data-person-portrait="${CSS.escape(name)}"]`),name,'portrait');top5.forEach(f=>attachFilmPoster(e.querySelector(`[data-film-image="${CSS.escape(f.title)}"]`),f));
     if(leonardoTest){
       const host=e.querySelector('[data-pixel-talent]'),canvas=host?.querySelector('canvas');
       if(host&&canvas){
         wikiImage(name).then(url=>{
           if(!url)return;
-          const img=new Image();img.crossOrigin='anonymous';img.onload=()=>{
-            const c=canvas.getContext('2d'),low=document.createElement('canvas'),lc=low.getContext('2d'),W=48,H=56;
-            low.width=W;low.height=H;lc.imageSmoothingEnabled=true;
-            // Make a deliberate head-and-shoulders crop instead of a random-looking full-photo crop.
-            const side=Math.min(img.width,img.height),sx=(img.width-side)/2,sy=Math.max(0,(img.height-side)*.12);
+          const img=new Image();img.onload=()=>{
+            const c=canvas.getContext('2d'),low=document.createElement('canvas'),lc=low.getContext('2d'),W=48,H=60;
+            low.width=W;low.height=H;
+            // True low-resolution sprite: preserve the face/hair silhouette, then upscale with nearest-neighbour.
+            // Do NOT read pixels back from the remote image: that would fail on cross-origin Wikimedia assets.
+            lc.imageSmoothingEnabled=false;
+            const side=Math.min(img.width,img.height),sx=(img.width-side)/2,sy=Math.max(0,(img.height-side)*.06);
             lc.drawImage(img,sx,sy,side,side,0,0,W,H);
-            const px=lc.getImageData(0,0,W,H),d=px.data;
-            // Reduce the source to a compact game palette while preserving facial planes and hair shape.
-            for(let i=0;i<d.length;i+=4){
-              const r=d[i],g=d[i+1],b=d[i+2],mx=Math.max(r,g,b),mn=Math.min(r,g,b),l=(r+g+b)/3;
-              const q=v=>Math.round(v/24)*24;
-              d[i]=q(r);d[i+1]=q(g);d[i+2]=q(b);
-              if(l<48){d[i]*=.72;d[i+1]*=.72;d[i+2]*=.72}
-              if(mx-mn<18&&l>175){d[i]=Math.min(255,d[i]+8);d[i+1]=Math.min(255,d[i+1]+8);d[i+2]=Math.min(255,d[i+2]+8)}
-            }
-            lc.putImageData(px,0,0);
             c.imageSmoothingEnabled=false;
             let blinkUntil=0;
             const paint=t=>{
