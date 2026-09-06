@@ -57,9 +57,7 @@ body{font-family:"Trebuchet MS",Arial,sans-serif}
 .rxTalentTestLeonardo + .rxKpis .rxKpi{background:#17130b;border-color:rgba(216,177,92,.16)}
 .rxTalentTestLeonardo + .rxKpis .rxKpi b{color:#f5d98e}
 .rxTalentTestLeonardo + .rxKpis .rxKpi small{color:#b99b5d}
-/* Talent profile only: warm gold cinematic backdrop. Do not alter the rest of the game UI. */
-.rxTalentHero{background:linear-gradient(135deg,#3a2a10 0%,#17130c 48%,#0d0e12 100%);border-bottom:1px solid rgba(216,177,92,.28)}
-.rxTalentHero .rxHeroBackdrop{filter:saturate(.72) sepia(.18)}
-.rxTalentHero .rxHeroBackdrop:after{background:linear-gradient(180deg,rgba(55,39,10,.10),rgba(18,14,7,.38) 38%,rgba(8,8,9,.96) 100%),linear-gradient(90deg,rgba(56,39,8,.78),rgba(20,16,8,.18) 68%,transparent)}
+/* Talent profile foundation: no photographic actor background. The mobile redesign will own the visual treatment. */
+.rxTalentHero{background:#0b0d10;border-bottom:1px solid rgba(216,177,92,.28)}
 .rxTalentHero .rxEyebrow{color:#e5bf69}.rxTalentHero .rxTag{border-color:rgba(229,191,105,.42);background:rgba(229,191,105,.10);color:#f0d58d}
 .rxTalentHero .rxPortrait{border-color:rgba(229,191,105,.38);box-shadow:0 10px 30px #0009,0 0 22px rgba(216,177,92,.10)}
