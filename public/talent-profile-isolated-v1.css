@@ -1,0 +1,32 @@
+/* BOLS2 talent profile isolated layout. Deliberately does not depend on rxSheet/rxBody desktop styles. */
+.bolsTalentModal{position:fixed!important;inset:0!important;z-index:12000!important;width:100vw!important;height:100dvh!important;max-width:none!important;max-height:none!important;margin:0!important;padding:0!important;box-sizing:border-box!important;display:flex!important;align-items:stretch!important;justify-content:stretch!important;overflow:hidden!important;background:rgba(3,4,6,.94)!important;color:#f1eee6!important}
+.bolsTalentModal *{box-sizing:border-box!important}
+.bolsTalentModal .rxClose{position:absolute!important;right:14px!important;top:14px!important;z-index:100!important;width:42px!important;height:42px!important;border-radius:50%!important;background:rgba(10,10,12,.82)!important;color:#fff!important;border:1px solid rgba(255,255,255,.2)!important}
+.bolsTalentModal .rxTalentHero{position:relative!important;display:flex!important;width:100%!important;min-width:0!important;min-height:310px!important;height:auto!important;flex:none!important;align-items:flex-end!important;padding:24px!important;overflow:hidden!important;background:#17130c!important;border-bottom:1px solid rgba(216,177,92,.28)!important}
+.bolsTalentModal .rxHeroBackdrop{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;background-position:center 22%!important;background-size:cover!important;transform:none!important}
+.bolsTalentModal .rxHeroContent{position:relative!important;z-index:3!important;width:100%!important;max-width:none!important;min-width:0!important;padding:70px 0 0!important}
+.bolsTalentModal .rxIdentity{display:flex!important;align-items:center!important;gap:12px!important;margin:0 0 10px!important;min-width:0!important}
+.bolsTalentModal .rxPixelCharacter{width:96px!important;height:96px!important;flex:0 0 96px!important}
+.bolsTalentModal .rxPixelCharacter canvas{width:78px!important;height:88px!important;image-rendering:pixelated!important}
+.bolsTalentModal .rxHero h1{margin:8px 0 8px!important;font-size:clamp(34px,9vw,52px)!important;line-height:.98!important;max-width:100%!important;overflow-wrap:anywhere!important}
+.bolsTalentModal .rxHero p{font-size:11px!important;line-height:1.4!important;max-width:420px!important}
+.bolsTalentModal .rxKpis{position:relative!important;display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;width:100%!important;min-width:0!important;flex:none!important;gap:1px!important}
+.bolsTalentModal .rxKpi{min-width:0!important;padding:14px 12px!important;overflow:hidden!important}
+.bolsTalentModal .rxKpi small,.bolsTalentModal .rxKpi span{white-space:normal!important;overflow-wrap:anywhere!important}
+.bolsTalentModal .rxKpi b{font-size:20px!important;overflow-wrap:anywhere!important}
+.bolsTalentModal .rxBody{display:block!important;width:100%!important;min-width:0!important;flex:none!important;overflow:visible!important}
+.bolsTalentModal .rxMain{display:block!important;width:100%!important;min-width:0!important}
+.bolsTalentModal .rxSide{display:block!important;width:100%!important;min-width:0!important;border-left:0!important;border-top:1px solid var(--rx-line)!important}
+.bolsTalentModal .rxSection{width:100%!important;min-width:0!important;padding:20px 16px!important}
+.bolsTalentModal .rxSectionHead{display:flex!important;justify-content:space-between!important;align-items:flex-end!important;gap:10px!important;min-width:0!important}
+.bolsTalentModal .rxSectionHead h3,.bolsTalentModal .rxSectionHead span{min-width:0!important;overflow-wrap:anywhere!important}
+.bolsTalentModal .rxFilmGrid{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;width:100%!important;min-width:0!important;gap:9px!important}
+.bolsTalentModal .rxFilm{width:100%!important;min-width:0!important;min-height:190px!important;overflow:hidden!important}
+.bolsTalentModal .rxFilmInfo{left:10px!important;right:10px!important;bottom:10px!important;min-width:0!important}
+.bolsTalentModal .rxFilmInfo b{font-size:14px!important;overflow-wrap:anywhere!important}
+.bolsTalentModal .rxFilmInfo small{font-size:9px!important;overflow-wrap:anywhere!important}
+.bolsTalentModal .rxSideSection{width:100%!important;min-width:0!important;padding:18px 16px!important}
+.bolsTalentModal .rxFooter{position:relative!important;display:flex!important;width:100%!important;min-width:0!important;flex:none!important;justify-content:flex-end!important;padding:10px 12px!important}
+.bolsTalentModal .rxBtn{flex:1!important;min-width:0!important}
+@media(min-width:621px){.bolsTalentModal{overflow:auto!important;padding:18px!important}.bolsTalentModal .rxTalentHero{min-height:340px!important}.bolsTalentModal .rxFilmGrid{grid-template-columns:repeat(3,minmax(0,1fr))!important}.bolsTalentModal .rxKpis{grid-template-columns:repeat(4,minmax(0,1fr))!important}}
+@media(max-width:620px){.bolsTalentModal{overflow-y:auto!important;overflow-x:hidden!important;display:block!important}.bolsTalentModal .rxTalentHero{min-height:310px!important;padding:18px!important}.bolsTalentModal .rxHeroContent{padding-top:62px!important}.bolsTalentModal .rxPixelCharacter{width:92px!important;height:92px!important;flex-basis:92px!important}.bolsTalentModal .rxPixelCharacter canvas{width:76px!important;height:84px!important}.bolsTalentModal .rxHero h1{font-size:35px!important}.bolsTalentModal .rxSectionHead{align-items:flex-start!important;flex-direction:column!important}.bolsTalentModal .rxSectionHead span{text-align:left!important}.bolsTalentModal .rxFilmGrid{grid-template-columns:repeat(2,minmax(0,1fr))!important}.bolsTalentModal .rxFooter{position:relative!important}.bolsTalentModal .rxClose{right:12px!important;top:12px!important}}
