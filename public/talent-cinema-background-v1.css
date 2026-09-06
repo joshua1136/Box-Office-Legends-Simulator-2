@@ -18,7 +18,7 @@
 .bolsTalentModal .rxTalentHero .rxHeroBackdrop{
   position:absolute!important;
   inset:0!important;
-  z-index:-5!important;
+  z-index:0!important;
   width:100%!important;
   height:100%!important;
   transform:none!important;
@@ -52,7 +52,7 @@
 .bolsTalentModal .rxTalentHero:before{
   content:"";
   position:absolute;
-  z-index:-3;
+  z-index:1;
   width:58%;
   height:130%;
   right:8%;
@@ -68,7 +68,7 @@
 .bolsTalentModal .rxTalentHero:after{
   content:"";
   position:absolute;
-  z-index:-2;
+  z-index:2;
   left:0;
   right:0;
   bottom:0;
