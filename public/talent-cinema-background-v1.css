@@ -1,0 +1,260 @@
+/* BOLS2 — Talent Cinema Spotlight
+   Ground-up replacement for the old photographic hero background.
+   Scoped only to the talent profile so the rest of the game is untouched. */
+.bolsTalentModal .rxTalentHero{
+  position:relative!important;
+  min-height:430px!important;
+  padding:24px 22px 28px!important;
+  overflow:hidden!important;
+  isolation:isolate!important;
+  background:
+    radial-gradient(circle at 72% 38%,rgba(216,177,92,.18),transparent 20%),
+    radial-gradient(circle at 72% 70%,rgba(216,177,92,.07),transparent 34%),
+    linear-gradient(135deg,#17130c 0%,#0d0d0f 42%,#07080a 100%)!important;
+  border-bottom:1px solid rgba(216,177,92,.34)!important;
+}
+
+/* Old remote portrait is intentionally removed. The scene is generated from the UI itself. */
+.bolsTalentModal .rxTalentHero .rxHeroBackdrop{
+  position:absolute!important;
+  inset:0!important;
+  z-index:-5!important;
+  width:100%!important;
+  height:100%!important;
+  transform:none!important;
+  background-image:none!important;
+  background-color:transparent!important;
+  background-size:auto!important;
+}
+.bolsTalentModal .rxTalentHero .rxHeroBackdrop:before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:
+    radial-gradient(ellipse at 72% 45%,rgba(255,222,150,.20) 0%,rgba(216,177,92,.08) 17%,transparent 43%),
+    radial-gradient(circle at 18% 18%,rgba(255,255,255,.045) 0 1px,transparent 2px),
+    radial-gradient(circle at 84% 17%,rgba(255,255,255,.035) 0 1px,transparent 2px),
+    radial-gradient(circle at 61% 79%,rgba(255,255,255,.028) 0 1px,transparent 2px),
+    radial-gradient(circle at 28% 68%,rgba(255,255,255,.025) 0 1px,transparent 2px);
+  background-size:auto,120px 120px,170px 170px,210px 210px,145px 145px;
+  opacity:.95;
+}
+.bolsTalentModal .rxTalentHero .rxHeroBackdrop:after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:
+    linear-gradient(90deg,rgba(5,6,8,.98) 0%,rgba(5,6,8,.82) 31%,rgba(5,6,8,.20) 67%,rgba(5,6,8,.72) 100%),
+    linear-gradient(180deg,rgba(0,0,0,.28),transparent 34%,rgba(0,0,0,.92) 100%);
+}
+
+/* Projector beam / stage light. */
+.bolsTalentModal .rxTalentHero:before{
+  content:"";
+  position:absolute;
+  z-index:-3;
+  width:58%;
+  height:130%;
+  right:8%;
+  top:-15%;
+  transform:rotate(8deg);
+  transform-origin:center;
+  background:linear-gradient(90deg,transparent,rgba(255,218,137,.105),transparent);
+  filter:blur(8px);
+  pointer-events:none;
+}
+
+/* Subtle cinema architecture + floor line. */
+.bolsTalentModal .rxTalentHero:after{
+  content:"";
+  position:absolute;
+  z-index:-2;
+  left:0;
+  right:0;
+  bottom:0;
+  height:31%;
+  background:
+    linear-gradient(180deg,transparent,rgba(0,0,0,.55)),
+    repeating-linear-gradient(90deg,transparent 0 54px,rgba(216,177,92,.025) 55px 56px);
+  border-top:1px solid rgba(216,177,92,.08);
+  pointer-events:none;
+}
+
+/* Tiny cinematic label in the scene. */
+.bolsTalentModal .rxTalentHero .rxHeroContent:before{
+  content:"TALENT  /  CINEMA SPOTLIGHT";
+  display:block;
+  width:max-content;
+  max-width:100%;
+  margin:0 0 18px;
+  padding:5px 8px;
+  border-left:2px solid #d8b15c;
+  background:rgba(216,177,92,.07);
+  color:rgba(244,223,170,.76);
+  font:700 8px/1.2 Arial,sans-serif;
+  letter-spacing:2px;
+}
+
+/* The pixel character is now the subject, not a photo pasted into the background. */
+.bolsTalentModal .rxTalentHero .rxPixelCharacter{
+  position:absolute!important;
+  z-index:4!important;
+  right:8%!important;
+  bottom:20px!important;
+  width:190px!important;
+  height:235px!important;
+  margin:0!important;
+  display:flex!important;
+  align-items:flex-end!important;
+  justify-content:center!important;
+  filter:drop-shadow(0 18px 22px rgba(0,0,0,.65));
+}
+.bolsTalentModal .rxTalentHero .rxPixelCharacter canvas{
+  width:150px!important;
+  height:188px!important;
+  image-rendering:pixelated!important;
+  image-rendering:crisp-edges!important;
+  filter:contrast(1.08) saturate(.9);
+}
+.bolsTalentModal .rxTalentHero .rxPixelCharacter:before{
+  content:"";
+  position:absolute;
+  left:50%;
+  bottom:4px;
+  width:150px;
+  height:16px;
+  transform:translateX(-50%);
+  border-radius:50%;
+  background:rgba(0,0,0,.78);
+  filter:blur(7px);
+}
+.bolsTalentModal .rxTalentHero .rxPixelCharacter:after{
+  content:"";
+  position:absolute;
+  left:50%;
+  top:0;
+  width:120px;
+  height:210px;
+  transform:translateX(-50%);
+  background:linear-gradient(180deg,rgba(255,220,140,.11),transparent 70%);
+  mix-blend-mode:screen;
+  pointer-events:none;
+}
+.bolsTalentModal .rxTalentHero .rxPixelShadow{display:none!important}
+.bolsTalentModal .rxTalentHero .rxPixelSpark{
+  position:absolute!important;
+  right:3px!important;
+  top:26px!important;
+  color:#f4d995!important;
+  font-size:19px!important;
+  text-shadow:0 0 18px rgba(216,177,92,.8);
+  animation:talentCinemaSpark 2.8s ease-in-out infinite;
+}
+
+@keyframes talentCinemaSpark{
+  0%,100%{opacity:.38;transform:translateY(4px) scale(.9)}
+  50%{opacity:1;transform:translateY(-5px) scale(1.08)}
+}
+
+.bolsTalentModal .rxTalentHero .rxHeroContent{
+  position:relative!important;
+  z-index:5!important;
+  width:58%!important;
+  max-width:580px!important;
+  padding:0 0 4px!important;
+  margin-top:auto!important;
+}
+.bolsTalentModal .rxTalentHero .rxIdentity{
+  display:block!important;
+  margin:0 0 13px!important;
+}
+.bolsTalentModal .rxTalentHero .rxIdentity > div:last-child{
+  display:flex!important;
+  align-items:center!important;
+  gap:8px!important;
+}
+.bolsTalentModal .rxTalentHero .rxEyebrow{
+  color:#e3c578!important;
+  letter-spacing:2px!important;
+}
+.bolsTalentModal .rxTalentHero .rxTag{
+  border-color:rgba(216,177,92,.45)!important;
+  color:#f0d58e!important;
+  background:rgba(216,177,92,.07)!important;
+}
+.bolsTalentModal .rxTalentHero h1{
+  max-width:100%!important;
+  margin:7px 0 12px!important;
+  font-family:Arial,Helvetica,sans-serif!important;
+  font-weight:800!important;
+  font-size:clamp(40px,7vw,66px)!important;
+  line-height:.92!important;
+  letter-spacing:-2px!important;
+  text-shadow:0 4px 24px rgba(0,0,0,.65);
+}
+.bolsTalentModal .rxTalentHero p{
+  max-width:430px!important;
+  color:rgba(241,238,230,.68)!important;
+  letter-spacing:.7px!important;
+}
+
+/* Gold frame around the character's spotlight, intentionally thin. */
+.bolsTalentModal .rxTalentHero .rxPixelCharacter::marker{display:none}
+.bolsTalentModal .rxTalentHero .rxPixelCharacter canvas{
+  outline:1px solid rgba(216,177,92,.25);
+  outline-offset:9px;
+}
+
+@media(max-width:620px){
+  .bolsTalentModal .rxTalentHero{
+    min-height:500px!important;
+    height:500px!important;
+    padding:18px 17px 24px!important;
+  }
+  .bolsTalentModal .rxTalentHero .rxHeroContent{
+    width:100%!important;
+    max-width:100%!important;
+    padding-bottom:0!important;
+  }
+  .bolsTalentModal .rxTalentHero .rxHeroContent:before{
+    margin-bottom:12px!important;
+    font-size:7px!important;
+    letter-spacing:1.6px!important;
+  }
+  .bolsTalentModal .rxTalentHero .rxPixelCharacter{
+    right:3%!important;
+    bottom:62px!important;
+    width:180px!important;
+    height:225px!important;
+    opacity:.96;
+  }
+  .bolsTalentModal .rxTalentHero .rxPixelCharacter canvas{
+    width:138px!important;
+    height:174px!important;
+  }
+  .bolsTalentModal .rxTalentHero .rxPixelSpark{right:2px!important;top:20px!important}
+  .bolsTalentModal .rxTalentHero .rxIdentity{position:relative!important;z-index:6!important}
+  .bolsTalentModal .rxTalentHero h1{
+    position:relative!important;
+    z-index:6!important;
+    max-width:70%!important;
+    font-size:42px!important;
+    line-height:.91!important;
+    letter-spacing:-1.5px!important;
+    margin-top:7px!important;
+  }
+  .bolsTalentModal .rxTalentHero p{
+    position:relative!important;
+    z-index:6!important;
+    max-width:72%!important;
+    font-size:10px!important;
+  }
+  .bolsTalentModal .rxTalentHero:before{
+    right:-2%;
+    width:82%;
+  }
+}
+
+@media(min-width:621px){
+  .bolsTalentModal .rxTalentHero .rxPixelCharacter{right:10%;bottom:22px}
+}
