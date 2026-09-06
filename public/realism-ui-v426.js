@@ -47,11 +47,14 @@ attachWikiImage(e.querySelector(`[data-person-portrait="${CSS.escape(name)}"]`),
           const img=new Image();img.onload=()=>{
             const c=canvas.getContext('2d'),low=document.createElement('canvas'),lc=low.getContext('2d'),W=48,H=60;
             low.width=W;low.height=H;
-            // True low-resolution sprite: preserve the face/hair silhouette, then upscale with nearest-neighbour.
-            // Do NOT read pixels back from the remote image: that would fail on cross-origin Wikimedia assets.
+            // Preserve the portrait's 4:5 aspect ratio before pixelating. The old square crop was stretched into 4:5,
+            // which visibly distorted faces on phones. Keep a centered head-and-shoulders crop with no geometric warping.
             lc.imageSmoothingEnabled=false;
-            const side=Math.min(img.width,img.height),sx=(img.width-side)/2,sy=Math.max(0,(img.height-side)*.06);
-            lc.drawImage(img,sx,sy,side,side,0,0,W,H);
+            const target=W/H,src=img.width/img.height;
+            let cw=img.width,ch=img.height;
+            if(src>target){cw=Math.round(img.height*target)}else{ch=Math.round(img.width/target)}
+            const sx=Math.max(0,(img.width-cw)/2),sy=Math.max(0,(img.height-ch)*.10);
+            lc.drawImage(img,sx,sy,cw,ch,0,0,W,H);
             c.imageSmoothingEnabled=false;
             let blinkUntil=0;
             const paint=t=>{
