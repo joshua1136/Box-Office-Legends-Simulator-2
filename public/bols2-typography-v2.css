@@ -1,0 +1,19 @@
+/* BOLS2 Typography Pass v2 — compact game UI, never giant web headings */
+.rxSheet,.rxSheet *,.deepIndustryModal,.deepIndustryModal *,.talentContractModal,.talentContractModal *,.udlShell,.udlShell *{box-sizing:border-box}
+.rxSheet h1,.rxSheet h2,.rxSheet h3,.rxSheet h4,.rxSheet b,.rxSheet strong,.rxSheet p,.rxSheet span,.rxSheet small,.rxSheet button{line-height:1.22}
+.rxSheet h1{font-size:clamp(24px,7vw,34px)!important;letter-spacing:-.02em}
+.rxSheet h2{font-size:clamp(20px,5.5vw,28px)!important}
+.rxSheet h3{font-size:15px!important}
+.rxSheet h4{font-size:12px!important;letter-spacing:.06em}
+.rxSheet p{font-size:12px!important;line-height:1.45}
+.rxSheet small,.rxSheet .rxEyebrow,.rxSheet .rxTag,.rxSheet .rxProjectTop,.rxSheet .rxKpi small,.rxSheet .rxStat span{font-size:9px!important;line-height:1.3}
+.rxSheet .rxKpi b,.rxSheet .rxStat b{font-size:15px!important}
+.rxSheet .rxKpi span,.rxSheet .rxProjectCopy p,.rxSheet .rxNote{font-size:10px!important}
+.rxSheet .rxSectionHead span,.rxSheet .rxSectionCount{font-size:9px!important}
+.rxSheet .rxFilmInfo b{font-size:11px!important}.rxSheet .rxFilmInfo small{font-size:9px!important}
+.rxSheet .rxProjectCopy b{font-size:13px!important}.rxSheet .rxProjectStats strong{font-size:10px!important}.rxSheet .rxProjectArrow{font-size:9px!important}
+.rxSheet .rxBtn,.rxSheet .rxClose{font-size:11px!important}
+.talentContractModal .contractPaper h2{font-size:22px!important}.talentContractModal .contractPaper h3{font-size:11px!important}
+.talentContractModal .contractPaper p,.talentContractModal .contractPaper span,.talentContractModal .contractPaper b,.talentContractModal .contractPaper small{line-height:1.35}
+.udlShell .udlHeroTitle,.udlShell h1{font-size:clamp(22px,7vw,32px)!important}.udlShell h2{font-size:17px!important}.udlShell h3{font-size:14px!important}.udlShell p,.udlShell label,.udlShell .udlHint,.udlShell .udlMeta{font-size:11px!important;line-height:1.4}.udlShell button{font-size:11px!important}.udlShell .udlStatValue{font-size:16px!important}
+@media(max-width:620px){.rxSheet h1{font-size:25px!important}.rxSheet h2{font-size:20px!important}.rxSheet .rxHero{min-height:150px!important}.rxSheet .rxKpis{gap:6px!important}.rxSheet .rxKpi{padding:9px!important}.rxSheet .rxSection{padding:11px!important}.rxSheet .rxBody{gap:0!important}.udlShell{font-size:11px}.udlShell .udlHeroTitle{font-size:24px!important}}
