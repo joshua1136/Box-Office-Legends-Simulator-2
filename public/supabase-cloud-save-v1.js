@@ -7,7 +7,7 @@
 
   const SUPABASE_URL='https://zgzoubtueebbznzsspeg.supabase.co';
   const SUPABASE_KEY='sb_publishable_zQrTHbtHrIEf-CJpUmuiOw_KAL_20r5';
-  const SLOT=1;
+  const SLOT_COUNT=5;
   const REV_KEY='BOLS2_CLOUD_REVISION_V1';
   let client=null;
   let user=null;
@@ -83,21 +83,52 @@
     return authPromise;
   }
 
-  async function getCloudSave(){
+  function slotForState(s){
+    const explicit=Number(s?.saveSlot||s?.slot);
+    if(explicit>=1&&explicit<=SLOT_COUNT)return explicit;
+    try{
+      const arr=JSON.parse(localStorage.getItem('bol2_saves_v1')||'[]');
+      const idx=arr.findIndex(x=>x&&String(x.studioName||'')===String(s?.studioName||''));
+      if(idx>=0&&idx<SLOT_COUNT)return idx+1;
+    }catch(e){}
+    return 1;
+  }
+
+  async function getCloudSave(slot=1){
     const u=await ensureAuth();
     const sb=getClient();
     if(!u||!sb) return {data:null,error:new Error('Cloud authentication unavailable')};
     const result=await sb.from('bols2_saves')
       .select('*')
       .eq('user_id',u.id)
-      .eq('slot',SLOT)
+      .eq('slot',Math.max(1,Math.min(SLOT_COUNT,Number(slot)||1)))
       .maybeSingle();
     return result;
   }
 
-  async function saveCloud(reason){
+  async function listCloudSaves(){
+    const u=await ensureAuth();
+    const sb=getClient();
+    if(!u||!sb)return {data:[],error:new Error('Cloud authentication unavailable')};
+    return await sb.from('bols2_saves').select('*').eq('user_id',u.id).order('slot',{ascending:true});
+  }
+
+  async function deleteCloudSlot(slot){
+    const u=await ensureAuth();
+    const sb=getClient();
+    if(!u||!sb)return {error:new Error('Cloud authentication unavailable')};
+    const target=Math.max(1,Math.min(SLOT_COUNT,Number(slot)||1));
+    const current=await sb.from('bols2_saves').select('id').eq('user_id',u.id).eq('slot',target).maybeSingle();
+    if(current.error)return current;
+    if(!current.data)return {data:null,error:null};
+    return await sb.from('bols2_saves').delete().eq('id',current.data.id);
+  }
+
+  async function saveCloud(reason,slot=null){
     const s=state();
     if(!s || saving) return {ok:false,skipped:true};
+    const targetSlot=Math.max(1,Math.min(SLOT_COUNT,Number(slot||slotForState(s))||1));
+    s.saveSlot=targetSlot;
     const copy=clone(s);
     if(!copy) return {ok:false,error:'State could not be serialized'};
     const u=await ensureAuth();
@@ -106,7 +137,7 @@
 
     saving=true;
     try{
-      const existing=await getCloudSave();
+      const existing=await getCloudSave(targetSlot);
       if(existing.error) throw existing.error;
       const old=existing.data;
       const oldTick=old ? ((+old.game_year||1)*52)+(+old.game_week||1) : -1;
@@ -124,14 +155,15 @@
         user_id:u.id,
         player_key:studioKey(copy),
         studio_name:String((copy.studio&&copy.studio.name)||copy.studioName||copy.name||'Unnamed Studio'),
-        slot:SLOT,
+        slot:targetSlot,
         game_state:copy,
         game_week:+copy.week||1,
         game_year:+copy.year||1,
         game_revision:stateRevision,
         game_version:'2.0',
         schema_version:2,
-        is_autosave:reason!=='manual-save' && reason!=='save-button'
+        is_autosave:reason!=='manual-save' && reason!=='save-button',
+        updated_at:new Date().toISOString()
       };
 
       let saved;
@@ -164,9 +196,10 @@
     }finally{saving=false;}
   }
 
-  async function restoreCloudIfNewer(force){
+  async function restoreCloudIfNewer(force,slot=null){
     const current=state();
-    const result=await getCloudSave();
+    const targetSlot=Math.max(1,Math.min(SLOT_COUNT,Number(slot||slotForState(current))||1));
+    const result=await getCloudSave(targetSlot);
     if(result.error || !result.data || !result.data.game_state) return false;
     const cloud=result.data;
     const cloudState=cloud.game_state;
@@ -202,7 +235,7 @@
     const original=window.saveCurrent;
     const wrapped=function(){
       let result;
-      try{result=original.apply(this,arguments);}finally{saveCloud('manual-save');}
+      try{result=original.apply(this,arguments);}finally{saveCloud('manual-save',slotForState(state()));}
       return result;
     };
     wrapped.__bolsCloudWrapped=true;
@@ -241,10 +274,16 @@
     init:boot,
     auth:ensureAuth,
     save:saveCloud,
+    saveSlot:(slot,reason='manual-save')=>saveCloud(reason,slot),
+    deleteSlot:(slot)=>deleteCloudSlot(slot),
     load:()=>restoreCloudIfNewer(true),
+    loadSlot:(slot)=>restoreCloudIfNewer(true,slot),
     recover:()=>restoreCloudIfNewer(false),
-    get: getCloudSave,
-    get status(){return {ready, userId:user&&user.id||null};}
+    recoverSlot:(slot)=>restoreCloudIfNewer(false,slot),
+    get:getCloudSave,
+    getSlot:(slot)=>getCloudSave(slot),
+    list:listCloudSaves,
+    get status(){return {ready,userId:user&&user.id||null};}
   };
 
   setTimeout(()=>{wire();boot();},300);
@@ -254,7 +293,7 @@
     const fp=fingerprint(s);
     if(ready && fp && fp!==lastFingerprint){
       lastFingerprint=fp;
-      saveCloud('weekly-state-change');
+      saveCloud('weekly-state-change',slotForState(s));
     }
   },1200);
 })();
