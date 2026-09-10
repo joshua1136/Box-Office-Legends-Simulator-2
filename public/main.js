@@ -1,7 +1,7 @@
 (()=>{
 const KEY='bol2_saves_v1';
 const DRAFT_KEY='bol2_movie_drafts_v1';
-const slots=()=>{try{return JSON.parse(localStorage.getItem(KEY)||'[]')}catch{return[]}};
+const slots=()=>{try{const arr=JSON.parse(localStorage.getItem(KEY)||'[]');const auto=JSON.parse(localStorage.getItem('BOLS2_AUTOSAVE_V2')||'null');if(auto?.state){const s=auto.state;const studioKey=x=>String(x?.studio?.id||x?.studio?.studioId||x?.studio?.name||x?.studioName||x?.name||'default');const tick=x=>((+x?.year||1)*52)+(+x?.week||1);let i=Number(s.saveSlot)-1;if(i<0||i>=5)i=arr.findIndex(x=>x&&studioKey(x)===studioKey(s));if(i<0)i=arr.findIndex(x=>!x);if(i<0)i=0;const current=arr[i];if(!current||tick(s)>tick(current)||(tick(s)===tick(current)&&Number(s.__bols2CloudRevision||0)>=Number(current.__bols2CloudRevision||0))){s.saveSlot=i+1;arr[i]=s;try{localStorage.setItem(KEY,JSON.stringify(arr.slice(0,5)))}catch(e){}}}return arr}catch{return[]}};
 const movieDrafts=()=>{try{return JSON.parse(localStorage.getItem(DRAFT_KEY)||'[]')}catch{return[]}};
 const writeMovieDrafts=x=>{try{localStorage.setItem(DRAFT_KEY,JSON.stringify(x));return true}catch(err){console.error('Draft storage failed',err);return false;}};
 const saveMovieDraft=(d)=>{const ds=movieDrafts();const i=ds.findIndex(x=>String(x.id)===String(d.id));const next={...d,updatedAt:new Date().toISOString()};if(i>=0)ds[i]={...ds[i],...next};else ds.unshift(next);return writeMovieDrafts(ds.slice(0,20));};
