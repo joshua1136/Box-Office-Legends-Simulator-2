@@ -1,64 +1,42 @@
 (()=>{
-  const money=n=>n>=1e9?'$'+(n/1e9).toFixed(2)+'B':n>=1e6?'$'+(n/1e6).toFixed(1)+'M':'$'+Math.round(n).toLocaleString();
+  const money=n=>n>=1e9?'$'+(n/1e9).toFixed(2)+'B':n>=1e6?'$'+(n/1e6).toFixed(1)+'M':'$'+Math.round(Number(n)||0).toLocaleString();
   const clamp=n=>Math.max(0,Math.min(99,Math.round(Number(n)||0)));
   const addHistory=(film,state,event,detail)=>{film.history=film.history||[];film.history.push({week:state.week,year:state.year,event,detail});};
+  const writerContractFor=(state,film)=>{const contracts=state?.talentContracts||{};for(const [name,c] of Object.entries(contracts)){if(c?.status==='active'&&String(c.filmId||'')===String(film?.id||'')&&String(c.role||'').toLowerCase()==='writer')return {name,contract:c};}return null;};
+  const ensureWriterTruth=(state,film)=>{const found=writerContractFor(state,film);film.crew=film.crew||{};if(found){film.crew.writer=found.name;}else if(film.crew.writer){delete film.crew.writer;}return found;};
   const castScore=film=>{const a=(film.characters||[]).map(c=>Number(c.castTalent||0)).filter(v=>v>0);return a.length?clamp(a.reduce((x,y)=>x+y,0)/a.length):0;};
   const marketingScore=film=>clamp(Number(film.poster?.quality||0)*.55+(Number(film.marketingBudget||0)/30000000*45));
 
   window.showFilmDevelopmentLab=function(state,film){
     const e=document.createElement('div');e.className='modal developmentLabModal';
+    let stage='idea';
     const render=()=>{
-      const engineMetrics=window.BOLS2MovieEngine?.outlook(state,film)||null;const quality=clamp(engineMetrics?.quality||((Number(film.story||50)+Number(film.direction||50)+Number(film.acting||50)+Number(film.visuals||50)+Number(film.music||50)+Number(film.vfx||50))/6));
+      const writer=ensureWriterTruth(state,film);
+      const engineMetrics=window.BOLS2MovieEngine?.outlook(state,film)||null;
+      const quality=clamp(engineMetrics?.quality||((Number(film.story||50)+Number(film.direction||50)+Number(film.acting||50)+Number(film.visuals||50)+Number(film.music||50)+Number(film.vfx||50))/6));
       const casting=castScore(film),script=clamp(film.story||50),marketing=marketingScore(film),hype=clamp(film.hype||0),audience=clamp(Number(film.audience||50)+Number(film.audienceBonus||0));
       const history=(film.history||[]).slice(-5).reverse();
+      const chars=Array.isArray(film.characters)?film.characters:[];
+      const pitch=Math.min(99,Math.round(Number(film.concept?.originality||50)*.28+Number(film.concept?.appeal||50)*.30+Number(film.concept?.commercialPotential||50)*.24+Number(film.concept?.franchisePotential||50)*.18));
+      const stages=[['idea','01 · IDEA'],['shape','02 · SHAPE'],['pitch','03 · PITCH'],['script','04 · SCRIPT']];
       e.innerHTML=`<div class="panel developmentLabPanel">
-        <header class="developmentLabHero"><button class="close">×</button><div><small>STUDIO · DEVELOPMENT LAB</small><h2>Build, refine, and prepare your next film.</h2><p>Every action changes the real project. No separate Development Lab economy.</p></div><div class="devLabLive"><span><small>CASH</small><b>${money(state.money)}</b></span><span><small>ENERGY</small><b>${state.energy}/${energyCapacity(state)}</b></span></div></header>
-        <section class="devLabFilmHead"><div>${posterThumb(film,'developmentLabPoster')}</div><div class="devLabFilmInfo"><small>YOUR NEXT FILM · ${esc(filmName(film.stage).toUpperCase())}</small><h3>${esc(film.title)}</h3><p>${esc(film.genre)} · ${esc(film.tone||'Original')} · Budget ${money(film.budget)}</p><div class="devLabFilmStats"><span><small>QUALITY</small><b>${quality}</b></span><span><small>HYPE</small><b>${hype}</b></span><span><small>AUDIENCE</small><b>${audience}</b></span><span><small>BUDGET LEFT</small><b>${money(Math.max(0,Number(film.budget||0)-Number(film.spent||0)))}</b></span></div></div></section>
+        <header class="developmentLabHero"><button class="close">×</button><div><small>STUDIO · DEVELOPMENT LAB</small><h2>${stage==='script'?'Writer’s Room':'Develop the Movie'}</h2><p>IDEA → SHAPE → PITCH → SCRIPT. The player shapes the movie; the hired writer writes the screenplay.</p></div><div class="devLabLive"><span><small>CASH</small><b>${money(state.money)}</b></span><span><small>ENERGY</small><b>${state.energy}/${energyCapacity(state)}</b></span></div></header>
+        <nav class="devFilmStages">${stages.map(([k,label])=>`<button type="button" class="${stage===k?'active':''}" data-film-stage="${k}">${label}</button>`).join('')}</nav>
+        <section class="devLabFilmHead"><div>${posterThumb(film,'developmentLabPoster')}</div><div class="devLabFilmInfo"><small>YOUR FILM · ${esc(filmName(film.stage).toUpperCase())}</small><h3>${esc(film.title)}</h3><p>${esc(film.genre)} · ${esc(film.tone||'Original')} · Budget ${money(film.budget)}</p><div class="devLabFilmStats"><span><small>QUALITY</small><b>${quality}</b></span><span><small>PITCH</small><b>${pitch}</b></span><span><small>CHARACTERS</small><b>${chars.length}</b></span><span><small>WRITER</small><b>${writer?esc(writer.name):'NOT HIRED'}</b></span></div></div></section>
         <div class="devLabWorkspace"><section class="devLabMain">
-          <div class="devLabSectionTitle"><div><small>DEVELOPMENT</small><h3>Project readiness</h3></div><span>${esc(filmName(film.stage).toUpperCase())}</span></div>
-          <div class="devLabProgressGrid"><div><label>STORY</label><i><em style="width:${script}%"></em></i><b>${script}%</b></div><div><label>CASTING</label><i><em style="width:${casting}%"></em></i><b>${casting}%</b></div><div><label>SCRIPT</label><i><em style="width:${script}%"></em></i><b>${script}%</b></div><div><label>MARKETING</label><i><em style="width:${marketing}%"></em></i><b>${marketing}%</b></div></div>
-          <div class="devLabActions">
-            <button data-dev-action="script"><strong>✍️ WRITER PASS</strong><span>Your hired writer works on the screenplay · 12 ⚡</span></button>
-            <button data-dev-action="cast"><strong>🎭 SCOUT CAST</strong><span>Real Talent market · 4 ⚡</span></button>
-            <button data-dev-action="research"><strong>🔬 RESEARCH AUDIENCE</strong><span>+5–10 Audience forecast · 8 ⚡</span></button>
-            <button data-dev-action="hype"><strong>📣 BUILD HYPE</strong><span>+5–12 Hype · $500K · 8 ⚡</span></button>
-            <button data-dev-action="refine"><strong>🎨 REFINE CONCEPT</strong><span>+2–6 creative quality · 10 ⚡</span></button>
-            <button data-dev-action="poster"><strong>🎞️ DESIGN POSTER</strong><span>Real Poster Studio · 5 ⚡ when approved</span></button>
-          </div>
-          <div class="devLabNote">⚠️ Refine Concept has a 15% chance of adding a one-week production delay. Development returns can diminish as a project gets stronger.</div>
-        </section><aside class="devLabSide">
-          <div class="devLabBudget"><small>PROJECT FINANCE</small><h3>${money(film.budget)}</h3><div><span>Spent so far</span><b>${money(film.spent||0)}</b></div><div><span>Marketing</span><b>${money(film.marketingBudget||0)}</b></div><div><span>Talent attached</span><b>${(film.characters||[]).filter(c=>c.cast).length}</b></div></div>
-          <div class="devLabHistory"><div class="devLabSectionTitle"><div><small>PROJECT FILE</small><h3>Recent Actions</h3></div></div>${history.map(h=>`<article><span>W${h.week||state.week}</span><div><b>${esc(h.event||'Project update')}</b><small>${esc(h.detail||'')}</small></div></article>`).join('')||'<div class="devLabEmpty">No development actions recorded yet.</div>'}</div>
-        </aside></div>
-        <footer class="devLabFooter"><button class="menuBtn" id="devLabBack">BACK TO PROJECT</button><button class="menuBtn primary" id="devLabDone">SAVE & RETURN</button></footer>
+          ${stage==='idea'?`<div class="devLabSectionTitle"><div><small>01 · IDEA</small><h3>The movie foundation</h3></div><span>PLAYER</span></div><div class="devSimpleGrid"><div><small>TITLE</small><b>${esc(film.title)}</b></div><div><small>GENRE</small><b>${esc(film.genre)}</b></div><div><small>TONE</small><b>${esc(film.tone||'Original')}</b></div><div><small>STRATEGY</small><b>${esc(film.franchiseStrategy||'Original')}</b></div></div><div class="devLabNote">This stage is already established by your movie concept. You are the one who creates the idea.</div>`:''}
+          ${stage==='shape'?`<div class="devLabSectionTitle"><div><small>02 · SHAPE</small><h3>Characters & story shape</h3></div><span>${chars.length} CHARACTERS</span></div><div class="devCharacterList">${chars.length?chars.map(c=>`<article><div class="devCharacterAvatar">${esc((c.name||'?')[0])}</div><div><b>${esc(c.name||'Unnamed')}</b><small>${esc(c.position||c.role||'Support')} · ${esc(c.gender||'Unspecified')}</small><p>${esc(c.background||c.brief||c.goal||'Character background not written yet.')}</p></div><strong>${c.cast?'CAST':'UNCAST'}</strong></article>`).join(''):'<div class="devEmpty">No characters are attached to this movie.</div>'}</div><div class="devLabNote">Character names and backgrounds belong to the player. Casting is handled later through the Talent market.</div>`:''}
+          ${stage==='pitch'?`<div class="devLabSectionTitle"><div><small>03 · PITCH</small><h3>Is the movie ready for the writer?</h3></div><span>${pitch}/100</span></div><div class="pitchHero ${pitch>=60?'ready':'locked'}"><div class="pitchScore"><strong>${pitch}</strong><span>/100</span></div><div><b>${pitch>=60?'PITCH READY':'NEEDS WORK'}</b><p>${pitch>=60?'The concept has enough direction to enter the writer’s room.':'Strengthen the concept before handing it to a writer.'}</p></div></div><div class="devSimpleGrid"><div><small>STORY</small><b>${script}/99</b></div><div><small>AUDIENCE</small><b>${audience}/99</b></div><div><small>CASTING</small><b>${casting}/99</b></div><div><small>HYPE</small><b>${hype}/99</b></div></div>`:''}
+          ${stage==='script'?`<div class="devLabSectionTitle"><div><small>04 · SCRIPT</small><h3>${writer?'The hired writer is writing':'Writer required before writing can begin'}</h3></div><span>${writer?'WRITER ATTACHED':'WRITER NEEDED'}</span></div>${writer?`<div class="writerHandoffCard"><div><small>HIRED WRITER</small><b>${esc(writer.name)}</b><span>Active ${writer.contract.movies||1}-picture contract · ${esc(writer.contract.payment||'UPFRONT')}</span></div><p>The writer handles scenes, dialogue, structure and rewrites. You direct the brief and approve the work.</p></div><button type="button" class="menuBtn primary" data-dev-action="script"><strong>✍️ WRITER PASS</strong><span>Advance the screenplay through your hired writer · ${ENERGY_ACTIONS.writing} ⚡</span></button>`:`<div class="writerRequiredCard"><div><span>✍️</span><div><b>NO WRITER HIRED</b><p>The screenplay cannot start yet. Go to Talent and sign a Writer to this specific film.</p></div></div><button type="button" class="menuBtn primary" data-hire-writer>HIRE WRITER →</button></div>`}<div class="devLabNote">You never write the screenplay yourself. The player supplies direction; the contracted Writer performs the actual writing.</div>`:''}
+        </section><aside class="devLabSide"><div class="devLabBudget"><small>PROJECT STATUS</small><h3>${writer?'WRITER ATTACHED':'WRITER NEEDED'}</h3><div><span>Story quality</span><b>${script}/99</b></div><div><span>Characters</span><b>${chars.length}</b></div><div><span>Talent attached</span><b>${chars.filter(c=>c.cast).length}</b></div></div><div class="devLabHistory"><div class="devLabSectionTitle"><div><small>PROJECT FILE</small><h3>Recent Actions</h3></div></div>${history.map(h=>`<article><span>W${h.week||state.week}</span><div><b>${esc(h.event||'Project update')}</b><small>${esc(h.detail||'')}</small></div></article>`).join('')||'<div class="devLabEmpty">No development actions recorded yet.</div>'}</div></aside></div>
+        <footer class="devLabFooter"><button class="menuBtn" id="devLabBack">BACK TO PROJECT</button>${stage!=='script'?`<button class="menuBtn primary" data-film-next>${stage==='idea'?'SHAPE →':stage==='shape'?'PITCH →':'SCRIPT →'}</button>`:`<button class="menuBtn primary" id="devLabDone">SAVE & RETURN</button>`}</footer>
       </div>`;
-      e.querySelector('.close').onclick=()=>e.remove();e.querySelector('#devLabBack').onclick=()=>e.remove();e.querySelector('#devLabDone').onclick=()=>e.remove();
-      e.querySelectorAll('[data-dev-action]').forEach(btn=>btn.onclick=()=>{
-        const a=btn.dataset.devAction;
-        if(a==='cast'){
-          if(!spendEnergy(state,ENERGY_ACTIONS.scouting,'scouting talent for '+film.title))return;
-          addHistory(film,state,'Talent scouting','Development Lab opened the real Talent market for this project.');saveCurrent(state,true);e.remove();openSection(state,'TALENT',film.id);return;
-        }
-        if(a==='poster'){e.remove();showPosterStudio(state,film);return;}
-        if(a==='script'){
-          const writer=film.crew?.writer;
-          if(!writer){toast('Hire a writer first. The studio does not write the screenplay.');e.remove();openSection(state,'TALENT',film.id);return;}
-          if(!spendEnergy(state,ENERGY_ACTIONS.writing,'writer pass for '+film.title))return;
-          const gain=Math.max(3,Math.min(7,4+Math.floor(Math.random()*4)-(Number(film.story||50)>78?2:0)));
-          film.story=clamp(Number(film.story||50)+gain);film.scriptProgress=film.story;addHistory(film,state,'Writer pass',`${writer.name||writer} completed a screenplay pass. Story quality +${gain}.`);
-        }else if(a==='research'){
-          if(!spendEnergy(state,ENERGY_ACTIONS.industry,'researching audience demand for '+film.title))return;
-          const gain=5+Math.floor(Math.random()*6);film.audienceBonus=clamp(Number(film.audienceBonus||0)+gain);film.marketResearch={week:state.week,year:state.year,audienceLift:gain,marketHealth:Number(state.industry?.marketHealth||82),boxOfficeIndex:Number(state.industry?.boxOfficeIndex||100)};addHistory(film,state,'Audience research',`Audience forecast improved +${gain}. Current market conditions were recorded.`);
-        }else if(a==='hype'){
-          const cost=500000;if(Number(state.money)<cost)return toast('Not enough cash to build campaign hype.');if(!spendEnergy(state,ENERGY_ACTIONS.marketing,'building hype for '+film.title))return;
-          state.money-=cost;state.transactions=state.transactions||[];state.transactions.push({week:state.week,year:state.year,type:'marketing',amount:-cost,description:`Early hype campaign for ${film.title}`});const gain=5+Math.floor(Math.random()*8);film.hype=clamp(Number(film.hype||0)+gain);film.audienceBonus=clamp(Number(film.audienceBonus||0)+2);film.spent=Number(film.spent||0)+cost;addHistory(film,state,'Hype campaign',`Spent ${money(cost)} · Hype +${gain} · Audience forecast +2.`);
-        }else if(a==='refine'){
-          if(!spendEnergy(state,ENERGY_ACTIONS.preproduction,'refining the concept for '+film.title))return;
-          const gain=2+Math.floor(Math.random()*5),targets=['story','direction','visuals'],target=targets[Math.floor(Math.random()*targets.length)];film[target]=clamp(Number(film[target]||50)+gain);addHistory(film,state,'Concept refinement',`${target.charAt(0).toUpperCase()+target.slice(1)} +${gain}. 15% delay risk checked.`);
-          if(Math.random()<.15){film.totalWeeks=Number(film.totalWeeks||4)+1;film.delayWeeks=Number(film.delayWeeks||0)+1;addHistory(film,state,'Development delay','Concept refinement introduced a one-week schedule delay.');state.news=state.news||[];state.news.unshift({week:state.week,year:state.year,type:'production',title:`⚠️ ${film.title} development delayed`,body:'A concept refinement introduced a one-week schedule delay.'});toast('⚠️ Refinement worked, but the project picked up a one-week delay.');}
-        }
-        film.quality=clamp((Number(film.story||50)+Number(film.direction||50)+Number(film.acting||50)+Number(film.visuals||50)+Number(film.music||50)+Number(film.vfx||50))/6);saveCurrent(state,true);render();toast('Development updated · '+film.title);
-      });
-    };render();document.body.appendChild(e);
+      e.querySelector('.close').onclick=()=>e.remove();e.querySelector('#devLabBack').onclick=()=>e.remove();e.querySelector('#devLabDone')?.addEventListener('click',()=>{saveCurrent(state,true);e.remove();});
+      e.querySelectorAll('[data-film-stage]').forEach(b=>b.onclick=()=>{stage=b.dataset.filmStage;render();});
+      e.querySelector('[data-film-next]')?.addEventListener('click',()=>{stage=stage==='idea'?'shape':stage==='shape'?'pitch':'script';render();});
+      e.querySelector('[data-hire-writer]')?.addEventListener('click',()=>{e.remove();openSection(state,'TALENT',film.id);setTimeout(()=>{const m=document.querySelector('.dashSectionModal');if(!m)return;m.querySelectorAll('[data-cat]').forEach(x=>x.classList.toggle('active',x.dataset.cat==='Writer'));m.querySelectorAll('[data-talent]').forEach(row=>row.style.display=row.dataset.talentRole==='Writer'?'grid':'none');m.querySelector('.sectionTitleRow span')?.replaceChildren(document.createTextNode(`Showing WRITER talent · Hiring directly for ${film.title}`));m.querySelector('.crewNeed')?.scrollIntoView({behavior:'smooth',block:'start'});},80);});
+      e.querySelector('[data-dev-action="script"]')?.addEventListener('click',()=>{const liveWriter=ensureWriterTruth(state,film);if(!liveWriter)return toast('Hire and sign a Writer for this film first.');if(!spendEnergy(state,ENERGY_ACTIONS.writing,'writer pass for '+film.title))return;const gain=Math.max(3,Math.min(7,4+Math.floor(Math.random()*4)-(Number(film.story||50)>78?2:0)));film.story=clamp(Number(film.story||50)+gain);film.scriptProgress=film.story;addHistory(film,state,'Writer pass',`${liveWriter.name} completed a screenplay pass. Story quality +${gain}.`);film.quality=clamp((Number(film.story||50)+Number(film.direction||50)+Number(film.acting||50)+Number(film.visuals||50)+Number(film.music||50)+Number(film.vfx||50))/6);saveCurrent(state,true);render();toast(`✍️ ${liveWriter.name} completed a screenplay pass.`);});
+    };
+    render();document.body.appendChild(e);
   };
 })();
