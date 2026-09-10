@@ -85,7 +85,7 @@ function enhance(){
   bar.innerHTML=`<div><small>${stageMeta[stage][0]}</small><b>${stageMeta[stage][1]}</b><span>${esc(hintFor(stage))}</span></div><div class="devStageBarActions">${prev?`<button type="button" data-dev-prev>← ${stageMeta[prev][0]}</button>`:''}${next?`<button type="button" class="primary" data-dev-next>${stageMeta[next][0]} →</button>`:`<button type="button" class="primary" data-dev-save>${filmDraft.script.locked?'SAVE DEVELOPMENT':'LOCK SCRIPT & SAVE'}</button>`}</div>`;
   bar.querySelector('[data-dev-prev]')?.addEventListener('click',()=>setStage(prev));
   bar.querySelector('[data-dev-next]')?.addEventListener('click',()=>setStage(next));
-  bar.querySelector('[data-dev-save]')?.addEventListener('click',()=>{if(!filmDraft.script.locked){if(filmDraft.script.progress<100)return toast('Finish the screenplay before locking it.');filmDraft.script.locked=true;}persistDraft();save(getState());toast('Development saved.');});
+  bar.querySelector('[data-dev-save]')?.addEventListener('click',()=>{const w=draftWriter();if(!w)return toast('Hire and sign a Writer before saving the screenplay stage.');if(!filmDraft.script.locked){filmDraft.script.locked=true;filmDraft.script.progress=100;filmDraft.script.notes=`Writer brief approved. ${w.name} is contracted to write the actual screenplay after greenlight.`;}persistDraft();save(getState());toast('Development saved.');});
  };
  const ensureStageShell=()=>{
   let host=lab.querySelector('.devStageWork');
@@ -169,6 +169,7 @@ function enhance(){
    const pages=Math.max(60,Math.min(180,Number(filmDraft.script.pages)||110));
    const writer=draftWriter();
    const handedOff=!!filmDraft.script.locked;
+   if(writer && !filmDraft.script.progress) filmDraft.script.progress=100;
    host.innerHTML=commonHeader('04 · SCRIPT','Writer Handoff','You do not write the screenplay. You shape the brief, then your hired writer writes it.')+
    `<div class="scriptStatus"><div><small>WRITER</small><strong>${writer?esc(writer.name):'NOT ASSIGNED'}</strong></div><div><small>EST. PAGES</small><strong>${pages}</strong></div><div><small>YOUR ROLE</small><strong>DIRECT THE BRIEF</strong></div><div><small>STATUS</small><strong>${handedOff?'BRIEF APPROVED':writer?'WRITER READY':'WRITER REQUIRED'}</strong></div></div>
    ${writer?'':'<div class="writerRequiredCard"><b>✍️ WRITER REQUIRED</b><p>A screenplay cannot be written or approved until a Writer is under contract for this movie project.</p><button type="button" class="menuBtn primary" data-hire-draft-writer>HIRE WRITER →</button></div>'}
@@ -218,7 +219,7 @@ function enhance(){
   if(stage==='idea'){setStage('shape');return;}
   if(stage==='shape'){setStage('pitch');return;}
   if(stage==='pitch'){if(stageAllowed('script'))setStage('script');else toast('Complete the required pitch work first.');return;}
-  if(stage==='script'&&!filmDraft.script.locked){const w=draftWriter();if(!w){toast('Hire and sign the Writer before greenlighting this movie.');return;}if(filmDraft.script.progress>=100){filmDraft.script.locked=true;filmDraft.script.notes=`Writer brief approved. ${w.name} is contracted to write the screenplay after greenlight.`;persistDraft();save(getState());updateFooter();renderStage();toast('🎬 Writer brief approved. The movie is ready to greenlight.');}else toast('Approve the Writer Brief before greenlighting the movie.');return;}
+  if(stage==='script'&&!filmDraft.script.locked){const w=draftWriter();if(!w){toast('Hire and sign the Writer before greenlighting this movie.');return;}filmDraft.script.locked=true;filmDraft.script.progress=100;filmDraft.script.notes=`Writer brief approved. ${w.name} is contracted to write the screenplay after greenlight.`;persistDraft();save(getState());updateFooter();renderStage();toast('🎬 Writer brief approved. The movie is ready to greenlight.');return;}
   if(stage==='script'&&filmDraft.script.locked){if(typeof originalStart==='function'){originalStart.call(footerStart,ev);return;}const fallback=footerStart;fallback.disabled=true;toast('Greenlight system is still loading. Please reopen the movie concept and try again.');}
  };
  const heroCopy=lab.querySelector('.movieHero p');if(heroCopy)heroCopy.textContent='Develop the same movie through four real stages. Your choices are saved to the project and affect what can happen next.';
