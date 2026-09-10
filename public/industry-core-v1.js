@@ -57,7 +57,11 @@ function hashCredit(s){let h=2166136261;for(let i=0;i<String(s).length;i++){h^=S
 function ensureRivalCredits(g,f){
  if(!f||!f.isRival)return false;
  let changed=false;const pools=creditPools(),pick=(pool,key)=>pool.length?pool[hashCredit(key)%pool.length]?.name:null;
- f.cast=Array.isArray(f.cast)?f.cast:[];f.crew=Array.isArray(f.crew)?f.crew:[];f.characters=Array.isArray(f.characters)?f.characters:[];
+ f.cast=Array.isArray(f.cast)?f.cast:[];
+ if(Array.isArray(f.crew))f.crew=f.crew.slice();
+ else if(f.crew&&typeof f.crew==='object')f.crew=Object.entries(f.crew).map(([role,value])=>({name:typeof value==='string'?value:value?.name||value?.talent||value?.person,role:value?.role||role})).filter(x=>x.name);
+ else f.crew=[];
+ f.characters=Array.isArray(f.characters)?f.characters:[];
  if(!f.cast.length){const names=[pick(pools.actors,f.id+'|lead'),pick(pools.actors,f.id+'|support'),pick(pools.actors,f.id+'|female')].filter(Boolean);const uniq=[...new Set(names)];uniq.forEach((name,i)=>f.cast.push({name,role:i===0?'Lead Actor':i===1?'Supporting Actor':'Lead Actress'}));changed=true;}
  const crewPlan=[['Director',pools.directors,'director'],['Writer',pools.writers,'writer'],['Cinematographer',pools.cinematographers,'cinematographer'],['Composer',pools.composers,'composer'],['Editor',pools.editors,'editor']];
  if(!f.crew.length){crewPlan.forEach(([role,pool,key])=>{const name=pick(pool,f.id+'|'+key);if(name&&!f.crew.some(x=>String(x.name||x)===name))f.crew.push({name,role})});changed=true;}
