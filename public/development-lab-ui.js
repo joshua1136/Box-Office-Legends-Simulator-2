@@ -90,8 +90,31 @@ function enhance(){
   if(!host){host=document.createElement('section');host.className='devStageWork';scroll.appendChild(host)}
   return host;
  };
+ const renderSimpleShape=()=>{
+  form.style.display='none';
+  const host=ensureStageShell(),v=currentValues(),chars=window.__BOL_CONCEPT_CHARS__||[];
+  const presets=[
+   ['🎬 STORY-DRIVEN','Focus on the character','A personal problem changes everything.','Personal'],
+   ['🔥 HIGH STAKES','Make it bigger','The characters have something important to lose.','Global'],
+   ['❤️ EMOTIONAL','Make us care','A relationship is tested by a difficult choice.','Family']
+  ];
+  const names={Male:['Ethan Cole','Noah Bennett','Daniel Reyes','Marcus Hale','Adrian Brooks'],Female:['Maya Reyes','Sofia Bennett','Claire Morgan','Nina Carter','Elena Brooks'],'Non-binary':['Alex Morgan','Jordan Ellis','Riley Bennett','Taylor Brooks','Avery Cole']};
+  const backgrounds={
+   'Protagonist':['A young professional hiding a difficult past who gets one chance to change their life.','An ambitious newcomer trying to prove they belong in a world that keeps shutting them out.','Someone ordinary is forced to become extraordinary after one impossible event.'],
+   'Antagonist':['A powerful rival who believes their choices are justified, even when everyone else disagrees.','A former ally who now wants the same goal for very different reasons.','A determined opponent protecting a secret that could destroy everything.'],
+   'Love Interest':['A warm but guarded person who challenges the lead to stop running from their feelings.','Someone with their own dream who refuses to become just a side character in another person’s story.','A longtime friend whose loyalty is tested when the stakes become personal.'],
+   'Mentor':['A veteran who has already made the mistake the protagonist is about to make.','A reluctant guide who knows exactly how dangerous the path ahead will be.','A former success who sees potential in the protagonist and refuses to give up on them.']
+  };
+  const randomCharacter=(type='Protagonist')=>{const gender=['Male','Female','Non-binary'][Math.floor(Math.random()*3)],pool=names[gender],name=pool[Math.floor(Math.random()*pool.length)],bgPool=backgrounds[type]||backgrounds.Protagonist,bg=bgPool[Math.floor(Math.random()*bgPool.length)];return {id:Date.now()+Math.random(),name,gender,position:type==='Protagonist'?'Lead':'Support',role:type,type,goal:bg,brief:bg,background:bg,arc:'Developing',screenTime:type==='Protagonist'?30:18,cast:null}};
+  const renderChars=()=>{const list=host.querySelector('[data-simple-chars]');if(!list)return;list.innerHTML=chars.length?chars.map((c,i)=>`<article class="simpleChar"><div class="simpleCharAvatar">${esc((c.name||'?')[0])}</div><div><b>${esc(c.name)}</b><small>${esc(c.type||'Protagonist')} · ${esc(c.gender||'Unspecified')}</small><p>${esc(c.background||c.brief||'Character background not written yet.')}</p></div><button type="button" data-remove-simple="${i}">REMOVE</button></article>`).join(''):'<div class="devEmpty">No characters yet. Add a ready-made character and customize later.</div>';list.querySelectorAll('[data-remove-simple]').forEach(b=>b.onclick=()=>{chars.splice(+b.dataset.removeSimple,1);window.__BOL_CONCEPT_CHARS__=chars;renderChars();});};
+  const addChar=type=>{const s=getState();if(!spend(s,energy('character',5),'developing a character'))return;chars.push(randomCharacter(type));window.__BOL_CONCEPT_CHARS__=chars;filmDraft.shape.conflict=filmDraft.shape.conflict||'The characters must overcome a problem that changes their lives.';persistDraft();save(s);renderChars();toast(`🎭 ${chars[chars.length-1].name} added.`)};
+  host.innerHTML=`<div class="simpleShapeHeader"><div><small>02 · SHAPE</small><h3>Shape the story — without the homework.</h3><p>Pick the direction that feels right. BOLS2 handles the complicated parts.</p></div><span>${esc(v.genre)}</span></div><div class="simpleShapeChoices">${presets.map((p,i)=>`<button type="button" class="simpleShapeChoice" data-shape-preset="${i}"><b>${p[0]}</b><strong>${p[1]}</strong><small>${p[2]}</small></button>`).join('')}</div><div class="simpleCharBox"><div class="simpleCharHead"><div><small>CHARACTERS</small><h4>${chars.length} character${chars.length===1?'':'s'}</h4></div><span>READY-MADE · EDIT LATER</span></div><div data-simple-chars></div><div class="simpleCharButtons"><button type="button" data-add-simple="Protagonist">＋ MAIN CHARACTER</button><button type="button" data-add-simple="Antagonist">＋ ANTAGONIST</button><button type="button" data-add-simple="Love Interest">＋ LOVE INTEREST</button><button type="button" data-add-simple="Mentor">＋ MENTOR</button><button type="button" data-random-simple>🎲 RANDOM CHARACTER</button></div></div><div class="simpleShapeSummary"><b>WHAT YOU NEED TO DO</b><span>Choose one story direction and create at least one character. That's it. The pitch can handle the rest.</span></div>`;
+  host.querySelectorAll('[data-shape-preset]').forEach(b=>b.onclick=()=>{const p=presets[+b.dataset.shapePreset];filmDraft.shape.stakes=p[3];filmDraft.shape.conflict=p[2];filmDraft.shape.theme=p[1];filmDraft.shape.audience=filmDraft.shape.audience||'General Audience';filmDraft.shape.setting=filmDraft.shape.setting||'Contemporary';filmDraft.shape.ending=filmDraft.shape.ending||'Hopeful';host.querySelectorAll('[data-shape-preset]').forEach(x=>x.classList.toggle('active',x===b));persistDraft();toast(`🎬 ${p[1]} direction selected.`)});
+  host.querySelectorAll('[data-add-simple]').forEach(b=>b.onclick=()=>addChar(b.dataset.addSimple));host.querySelector('[data-random-simple]').onclick=()=>addChar(['Protagonist','Antagonist','Love Interest','Mentor'][Math.floor(Math.random()*4)]);renderChars();
+ };
  const renderStage=()=>{
   const host=ensureStageShell();
+  if(stage==='shape'){renderSimpleShape();syncIdeaPreview();return;}
   const v=currentValues(), scores=computeScores(), chars=window.__BOL_CONCEPT_CHARS__||[];
   const commonHeader=(eyebrow,title,copy)=>`<div class="devStageHeader"><div><small>${eyebrow}</small><h3>${title}</h3><p>${copy}</p></div><div class="devStageRead"><span>${esc(v.genre)}</span><span>${money(v.budget)}</span></div></div>`;
   if(stage==='idea'){
