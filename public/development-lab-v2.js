@@ -18,7 +18,7 @@
           <div class="devLabSectionTitle"><div><small>DEVELOPMENT</small><h3>Project readiness</h3></div><span>${esc(filmName(film.stage).toUpperCase())}</span></div>
           <div class="devLabProgressGrid"><div><label>STORY</label><i><em style="width:${script}%"></em></i><b>${script}%</b></div><div><label>CASTING</label><i><em style="width:${casting}%"></em></i><b>${casting}%</b></div><div><label>SCRIPT</label><i><em style="width:${script}%"></em></i><b>${script}%</b></div><div><label>MARKETING</label><i><em style="width:${marketing}%"></em></i><b>${marketing}%</b></div></div>
           <div class="devLabActions">
-            <button data-dev-action="script"><strong>✍️ DEVELOP SCRIPT</strong><span>+3–7 Story · 12 ⚡</span></button>
+            <button data-dev-action="script"><strong>✍️ WRITER PASS</strong><span>Your hired writer works on the screenplay · 12 ⚡</span></button>
             <button data-dev-action="cast"><strong>🎭 SCOUT CAST</strong><span>Real Talent market · 4 ⚡</span></button>
             <button data-dev-action="research"><strong>🔬 RESEARCH AUDIENCE</strong><span>+5–10 Audience forecast · 8 ⚡</span></button>
             <button data-dev-action="hype"><strong>📣 BUILD HYPE</strong><span>+5–12 Hype · $500K · 8 ⚡</span></button>
@@ -41,9 +41,11 @@
         }
         if(a==='poster'){e.remove();showPosterStudio(state,film);return;}
         if(a==='script'){
-          if(!spendEnergy(state,ENERGY_ACTIONS.writing,'developing the script for '+film.title))return;
+          const writer=film.crew?.writer;
+          if(!writer){toast('Hire a writer first. The studio does not write the screenplay.');e.remove();openSection(state,'TALENT',film.id);return;}
+          if(!spendEnergy(state,ENERGY_ACTIONS.writing,'writer pass for '+film.title))return;
           const gain=Math.max(3,Math.min(7,4+Math.floor(Math.random()*4)-(Number(film.story||50)>78?2:0)));
-          film.story=clamp(Number(film.story||50)+gain);addHistory(film,state,'Script development',`Story quality +${gain}. Script work now ${film.story}/99.`);
+          film.story=clamp(Number(film.story||50)+gain);film.scriptProgress=film.story;addHistory(film,state,'Writer pass',`${writer.name||writer} completed a screenplay pass. Story quality +${gain}.`);
         }else if(a==='research'){
           if(!spendEnergy(state,ENERGY_ACTIONS.industry,'researching audience demand for '+film.title))return;
           const gain=5+Math.floor(Math.random()*6);film.audienceBonus=clamp(Number(film.audienceBonus||0)+gain);film.marketResearch={week:state.week,year:state.year,audienceLift:gain,marketHealth:Number(state.industry?.marketHealth||82),boxOfficeIndex:Number(state.industry?.boxOfficeIndex||100)};addHistory(film,state,'Audience research',`Audience forecast improved +${gain}. Current market conditions were recorded.`);
