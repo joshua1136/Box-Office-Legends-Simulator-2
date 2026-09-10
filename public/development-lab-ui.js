@@ -12,6 +12,7 @@ function enhance(){
  const lab=document.querySelector('.conceptLab');
  if(!lab||lab.dataset.developmentV4==='1')return;
  lab.dataset.developmentV4='1';
+ if(!document.getElementById('devWriterGateStyles')){const st=document.createElement('style');st.id='devWriterGateStyles';st.textContent='.writerRequiredCard{margin:14px 0;padding:16px;border:1px solid #5b4725;border-radius:12px;background:#14110c}.writerRequiredCard b{display:block;color:#d5ad58;font-size:11px;letter-spacing:1px}.writerRequiredCard p{margin:7px 0 12px;color:#85817a;font-size:8px;line-height:1.55}.writerRequiredCard .menuBtn{width:100%}.scriptStatus strong{word-break:break-word}';document.head.appendChild(st)}
  const form=lab.querySelector('.movieForm');
  const scroll=lab.querySelector('.movieScroll');
  const steps=[...lab.querySelectorAll('.movieSteps span')].slice(0,4);
@@ -58,7 +59,8 @@ function enhance(){
   window.__BOL_DEVLAB_DRAFT__={...filmDraft,base:v};
   const draftId=lab.dataset.draftId||Date.now();
   lab.dataset.draftId=String(draftId);
-  try{if(typeof window.saveMovieDraft==='function')window.saveMovieDraft({id:draftId,title:v.title,genre:v.genre,tone:v.tone,budget:v.budget,hook:v.hook,franchise:v.franchise,shape:JSON.parse(JSON.stringify(filmDraft.shape)),pitch:JSON.parse(JSON.stringify(filmDraft.pitch)),script:JSON.parse(JSON.stringify(filmDraft.script)),characters:JSON.parse(JSON.stringify(window.__BOL_CONCEPT_CHARS__||[])),poster:null});}catch(e){console.warn(e)}
+  const draftWriter=()=>{const s=getState(),contracts=s?.talentContracts||{};for(const [name,c] of Object.entries(contracts)){if(c?.status==='active'&&String(c.role||'').toLowerCase()==='writer'&&String(c.developmentDraftId||'')===String(draftId))return{name,contract:c};}return null};
+  try{if(typeof window.saveMovieDraft==='function')window.saveMovieDraft({id:draftId,title:v.title,genre:v.genre,tone:v.tone,budget:v.budget,hook:v.hook,franchise:v.franchise,shape:JSON.parse(JSON.stringify(filmDraft.shape)),pitch:JSON.parse(JSON.stringify(filmDraft.pitch)),script:JSON.parse(JSON.stringify(filmDraft.script)),developmentStage:stage,characters:JSON.parse(JSON.stringify(window.__BOL_CONCEPT_CHARS__||[])),poster:null});}catch(e){console.warn(e)}
  };
  const stageAllowed=s=>{
   if(s==='idea')return true;
@@ -165,18 +167,21 @@ function enhance(){
   } else {
    form.style.display='none';
    const pages=Math.max(60,Math.min(180,Number(filmDraft.script.pages)||110));
+   const writer=draftWriter();
    const handedOff=!!filmDraft.script.locked;
    host.innerHTML=commonHeader('04 · SCRIPT','Writer Handoff','You do not write the screenplay. You shape the brief, then your hired writer writes it.')+
-   `<div class="scriptStatus"><div><small>WRITER</small><strong>${handedOff?'READY FOR HANDOFF':'NOT ASSIGNED'}</strong></div><div><small>EST. PAGES</small><strong>${pages}</strong></div><div><small>YOUR ROLE</small><strong>DIRECT THE BRIEF</strong></div><div><small>STATUS</small><strong>${handedOff?'APPROVED':'PLANNING'}</strong></div></div>
+   `<div class="scriptStatus"><div><small>WRITER</small><strong>${writer?esc(writer.name):'NOT ASSIGNED'}</strong></div><div><small>EST. PAGES</small><strong>${pages}</strong></div><div><small>YOUR ROLE</small><strong>DIRECT THE BRIEF</strong></div><div><small>STATUS</small><strong>${handedOff?'BRIEF APPROVED':writer?'WRITER READY':'WRITER REQUIRED'}</strong></div></div>
+   ${writer?'':'<div class="writerRequiredCard"><b>✍️ WRITER REQUIRED</b><p>A screenplay cannot be written or approved until a Writer is under contract for this movie project.</p><button type="button" class="menuBtn primary" data-hire-draft-writer>HIRE WRITER →</button></div>'}
    <div class="devChoiceGrid"><label class="devField"><span>WRITING APPROACH</span><select data-script="approach"><option>Character-driven</option><option>High-concept</option><option>Commercial</option><option>Prestige</option><option>Franchise-minded</option></select></label><label class="devField"><span>ESTIMATED LENGTH</span><input type="range" min="75" max="160" step="5" value="${pages}" data-script="pages"><output data-script-output>${pages} pages</output></label></div>
    <label class="devField"><span>YOUR WRITER BRIEF</span><textarea data-script="brief" maxlength="600" placeholder="Tell the writer what the screenplay must protect: tone, character priorities, key moments, or anything you do not want changed."></textarea></label>
    <div class="writerHandoffCard"><b>WHO WRITES IT?</b><p>The hired writer writes the scenes, dialogue, structure and rewrites. You only guide the direction, review the result and approve the final screenplay.</p></div>
-   <div class="scriptNotes"><b>WRITER’S ROOM NOTES</b><p>${esc(filmDraft.script.notes||'No screenplay has been written yet. This stage creates the brief that the hired writer will use.')}</p></div>
-   <button type="button" class="menuBtn primary devMajorAction" data-script-lock>${handedOff?'✓ WRITER BRIEF APPROVED':'APPROVE WRITER BRIEF →'}</button>`;
+   <div class="scriptNotes"><b>WRITER’S ROOM NOTES</b><p>${esc(filmDraft.script.notes||'No screenplay has been written yet. Hire a writer, then approve your brief. The writer performs the actual screenplay work after greenlight.')}</p></div>
+   <button type="button" class="menuBtn primary devMajorAction" data-script-lock ${writer?'':'disabled'}>${handedOff?'✓ WRITER BRIEF APPROVED':'APPROVE WRITER BRIEF →'}</button>`;
    host.querySelector('[data-script="approach"]').value=filmDraft.script.approach;host.querySelector('[data-script="approach"]').onchange=e=>{filmDraft.script.approach=e.target.value;persistDraft()};
    host.querySelector('[data-script="pages"]').oninput=e=>{filmDraft.script.pages=Number(e.target.value);host.querySelector('[data-script-output]').textContent=e.target.value+' pages';persistDraft()};
    host.querySelector('[data-script="brief"]').value=filmDraft.script.brief||'';host.querySelector('[data-script="brief"]').oninput=e=>{filmDraft.script.brief=e.target.value;persistDraft()};
-   host.querySelector('[data-script-lock]')?.addEventListener('click',()=>{if(filmDraft.script.locked)return toast('Writer brief already approved. Hire a writer after greenlight to begin the screenplay.');filmDraft.script.locked=true;filmDraft.script.progress=100;filmDraft.script.notes='Writer brief approved. The hired writer will handle the actual screenplay once the project is greenlit.';persistDraft();save(getState());nav();actionBar();renderStage();updateFooter();toast('🎬 Writer brief approved. The hired writer will write the screenplay.');});
+   host.querySelector('[data-hire-draft-writer]')?.addEventListener('click',()=>{const s=getState();if(!s)return toast('No active studio save.');window.__BOL_DEV_WRITER_DRAFT_ID__=String(lab.dataset.draftId||draftId);persistDraft();save(s);document.querySelector('.dashSectionModal')?.remove();if(typeof window.openSection==='function')window.openSection(s,'TALENT');else toast('Talent market is still loading.');});
+   host.querySelector('[data-script-lock]')?.addEventListener('click',()=>{const w=draftWriter();if(!w)return toast('Hire a Writer before approving the writer brief.');if(filmDraft.script.locked)return toast('Writer brief already approved. The hired writer will write the screenplay after greenlight.');filmDraft.script.locked=true;filmDraft.script.progress=100;filmDraft.script.notes=`Writer brief approved. ${w.name} is contracted to write the actual screenplay after greenlight.`;persistDraft();save(getState());nav();actionBar();renderStage();updateFooter();toast(`🎬 Writer brief approved. ${w.name} will write the screenplay.`);});
   }
   syncIdeaPreview();
  };
