@@ -1,0 +1,34 @@
+/* BOLS2 DEVELOPMENT LAB v7 — compact cinematic hierarchy */
+.unifiedDevelopmentLab{font-size:13px}
+.unifiedDevelopmentLab .udlHero h1{font-size:22px;line-height:1.08;margin:4px 0}
+.unifiedDevelopmentLab .udlHero p{font-size:11px;line-height:1.4}
+.unifiedDevelopmentLab .udlProjectInfo h2{font-size:21px;line-height:1.1;margin:3px 0}
+.unifiedDevelopmentLab .udlProjectInfo>p{font-size:11px}
+.unifiedDevelopmentLab .udlQuestion h3{font-size:18px;line-height:1.2;margin:4px 0}
+.unifiedDevelopmentLab .udlQuestion p{font-size:11px;line-height:1.45}
+.unifiedDevelopmentLab label{font-size:10px;letter-spacing:.07em}
+.unifiedDevelopmentLab input,.unifiedDevelopmentLab select,.unifiedDevelopmentLab textarea{font-size:13px}
+/* Title + Hook are intentionally compact and grouped as the movie identity card. */
+.unifiedDevelopmentLab .udlFormGrid label:first-child{grid-column:span 1}
+.unifiedDevelopmentLab .udlFormGrid label:first-child input{font-family:Georgia,serif;font-size:16px;font-weight:600;height:42px;padding:9px 11px}
+.unifiedDevelopmentLab .udlWide.udlWide{margin-top:10px;padding:12px;border-radius:14px;background:rgba(255,255,255,.025);border:1px solid rgba(181,138,58,.16)}
+.unifiedDevelopmentLab .udlWide textarea[data-idea="hook"]{min-height:74px;font-size:12px;line-height:1.45;padding:10px 11px}
+.unifiedDevelopmentLab .udlWide label{font-size:9px;margin-bottom:5px}
+.unifiedDevelopmentLab .udlInlineActions button{font-size:9px;padding:8px 10px}
+.unifiedDevelopmentLab .udlBudget{margin-top:12px}
+.unifiedDevelopmentLab .udlBudget b{font-size:15px}
+.unifiedDevelopmentLab .udlStage,.unifiedDevelopmentLab .udlStages b{font-size:10px}
+.unifiedDevelopmentLab .udlStages small{font-size:8px}
+.unifiedDevelopmentLab .udlHealth span,.unifiedDevelopmentLab .udlConfidence span{font-size:8px}
+.unifiedDevelopmentLab .udlHealth strong,.unifiedDevelopmentLab .udlConfidence strong{font-size:16px}
+.unifiedDevelopmentLab .udlCardTitle span,.unifiedDevelopmentLab .udlCardTitle b{font-size:9px}
+.unifiedDevelopmentLab .dnaRow{font-size:9px}
+.unifiedDevelopmentLab .dnaRow strong{font-size:10px}
+.unifiedDevelopmentLab .udlNext small{font-size:8px}.unifiedDevelopmentLab .udlNext b{font-size:11px;line-height:1.35}
+.unifiedDevelopmentLab .menuBtn{font-size:10px;letter-spacing:.04em}
+.unifiedDevelopmentLab .udlDecision{padding-top:2px}
+@media(max-width:620px){
+ .unifiedDevelopmentLab .udlHero h1{font-size:20px}.unifiedDevelopmentLab .udlProjectInfo h2{font-size:19px}.unifiedDevelopmentLab .udlQuestion h3{font-size:17px}
+ .unifiedDevelopmentLab .udlFormGrid label:first-child input{font-size:15px;height:40px}
+ .unifiedDevelopmentLab .udlWide textarea[data-idea="hook"]{min-height:68px;font-size:12px}
+}
