@@ -127,10 +127,23 @@ window.__BOL_OPEN_DEVELOPMENT_WRITER__=(state,draftId)=>{
   const active=Object.entries(state?.talentContracts||{}).find(([name,c])=>c?.status==='active'&&String(c.role||'').toLowerCase()==='writer'&&(!c.filmId||String(c.developmentDraftId||'')===String(draftId||'')));
   if(active){toast(`${active[0]} is already under a Writer contract.`);return false;}
   const available=writers.filter(t=>{const c=state?.talentContracts?.[t[0]];return !c||c.status==='expired';});
-  const chosen=(available.length?available:writers)[0];
+  if(!available.length){toast('All Writers are currently under contract.');return false;}
   window.__BOL_DEV_WRITER_DRAFT_ID__=String(draftId||'');
   window.__BOL_DEV_WRITER_FILM_ID__='';
-  showTalentContract(state,chosen,null,'writer',null,null);
+  /* IMPORTANT: never auto-select a Writer. The player must choose who to approach. */
+  const picker=document.createElement('div');
+  picker.className='modal devWriterPickerModal';
+  picker.innerHTML=`<div class="panel devWriterPickerPanel"><button class="close" aria-label="Close">×</button><header><small>DEVELOPMENT LAB · WRITER'S MARKET</small><h2>Choose Your Writer</h2><p>Review the available Writers and decide who should shape this screenplay.</p></header><div class="devWriterPickerList">${available.map((t,i)=>{const tier=t[4]||'Unknown',ask=currentTalentAsk(state,t);return `<button type="button" class="devWriterChoice" data-writer-index="${i}"><span class="devWriterAvatar">${esc(String(t[0]||'?')[0])}</span><div class="devWriterChoiceMain"><b>${esc(t[0])}</b><small>✍️ ${esc(tier)} · Talent ${Number(t[2]||50)}/100 · Popularity ${Number(t[5]||50)}/100</small><span>${fmtContractMoney(ask)} market ask · ${esc((t[7]||[]).slice(0,2).join(' · ')||'Versatile writer')}</span></div><strong>VIEW →</strong></button>`}).join('')}</div><footer><button class="menuBtn" data-writer-cancel>CANCEL</button></footer></div>`;
+  document.body.appendChild(picker);
+  const closePicker=()=>{picker.remove();};
+  picker.querySelector('.close').onclick=closePicker;
+  picker.querySelector('[data-writer-cancel]').onclick=closePicker;
+  picker.querySelectorAll('[data-writer-index]').forEach(btn=>btn.onclick=()=>{
+    const chosen=available[Number(btn.dataset.writerIndex)];
+    if(!chosen)return;
+    closePicker();
+    showTalentContract(state,chosen,null,'writer',null,null);
+  });
   return true;
 };
 /* Direct bridge for the real-world talent profile: the Hire button must open the contract itself,
