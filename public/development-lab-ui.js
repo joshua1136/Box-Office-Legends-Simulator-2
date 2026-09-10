@@ -210,7 +210,7 @@ function enhance(){
   if(stage==='idea'){footerStart.textContent='CONTINUE TO SHAPE →';footerStart.disabled=false;}
   else if(stage==='shape'){footerStart.textContent='CONTINUE TO PITCH →';footerStart.disabled=false;}
   else if(stage==='pitch'){footerStart.textContent=stageAllowed('script')?'CONTINUE TO SCRIPT →':'PITCH NEEDS WORK';footerStart.disabled=!stageAllowed('script');}
-  else if(stage==='script'){footerStart.textContent=filmDraft.script.locked?'GREENLIGHT MOVIE · 25 ⚡ →':'APPROVE WRITER BRIEF';footerStart.disabled=false;}
+  else if(stage==='script'){footerStart.textContent=filmDraft.script.locked?'GREENLIGHT MOVIE · 25 ⚡ →':'APPROVE WRITER BRIEF';footerStart.disabled=false;footerStart.removeAttribute('aria-disabled');}
  };
  steps.forEach((b,i)=>{b.onclick=()=>setStage(stages[i]);b.style.cursor='pointer'});
  if(footerStart)footerStart.onclick=ev=>{
@@ -218,8 +218,8 @@ function enhance(){
   if(stage==='idea'){setStage('shape');return;}
   if(stage==='shape'){setStage('pitch');return;}
   if(stage==='pitch'){if(stageAllowed('script'))setStage('script');else toast('Complete the required pitch work first.');return;}
-  if(stage==='script'&&!filmDraft.script.locked){if(filmDraft.script.progress>=100){filmDraft.script.locked=true;persistDraft();save(getState());updateFooter();renderStage();toast('🎬 Final screenplay locked.');}else toast('The screenplay must reach 100% before greenlighting the movie.');return;}
-  if(stage==='script'&&filmDraft.script.locked&&typeof originalStart==='function')originalStart.call(footerStart,ev);
+  if(stage==='script'&&!filmDraft.script.locked){const w=draftWriter();if(!w){toast('Hire and sign the Writer before greenlighting this movie.');return;}if(filmDraft.script.progress>=100){filmDraft.script.locked=true;filmDraft.script.notes=`Writer brief approved. ${w.name} is contracted to write the screenplay after greenlight.`;persistDraft();save(getState());updateFooter();renderStage();toast('🎬 Writer brief approved. The movie is ready to greenlight.');}else toast('Approve the Writer Brief before greenlighting the movie.');return;}
+  if(stage==='script'&&filmDraft.script.locked){if(typeof originalStart==='function'){originalStart.call(footerStart,ev);return;}const fallback=footerStart;fallback.disabled=true;toast('Greenlight system is still loading. Please reopen the movie concept and try again.');}
  };
  const heroCopy=lab.querySelector('.movieHero p');if(heroCopy)heroCopy.textContent='Develop the same movie through four real stages. Your choices are saved to the project and affect what can happen next.';
  lab.querySelector('#movieTitle')?.addEventListener('input',()=>{syncIdeaPreview();persistDraft()});
