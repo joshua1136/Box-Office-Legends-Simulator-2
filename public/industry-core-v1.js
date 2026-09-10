@@ -48,6 +48,23 @@ function ensureCollections(g){
  g.industry.rivalResults=g.industry.rivalResults||{};
  return g.industryFilms;
 }
+function creditPools(){
+ const src=Object.values(window.INDUSTRY_PEOPLE||{}).flat().filter(Boolean);
+ const role=p=>String(p?.role||'').trim().toLowerCase();
+ return {actors:src.filter(p=>role(p)==='actor'||role(p)==='actress'),directors:src.filter(p=>role(p)==='director'),writers:src.filter(p=>role(p)==='writer'),cinematographers:src.filter(p=>role(p)==='cinematographer'),composers:src.filter(p=>role(p)==='composer'),editors:src.filter(p=>role(p)==='editor')};
+}
+function hashCredit(s){let h=2166136261;for(let i=0;i<String(s).length;i++){h^=String(s).charCodeAt(i);h=Math.imul(h,16777619)}return h>>>0}
+function ensureRivalCredits(g,f){
+ if(!f||!f.isRival)return false;
+ let changed=false;const pools=creditPools(),pick=(pool,key)=>pool.length?pool[hashCredit(key)%pool.length]?.name:null;
+ f.cast=Array.isArray(f.cast)?f.cast:[];f.crew=Array.isArray(f.crew)?f.crew:[];f.characters=Array.isArray(f.characters)?f.characters:[];
+ if(!f.cast.length){const names=[pick(pools.actors,f.id+'|lead'),pick(pools.actors,f.id+'|support'),pick(pools.actors,f.id+'|female')].filter(Boolean);const uniq=[...new Set(names)];uniq.forEach((name,i)=>f.cast.push({name,role:i===0?'Lead Actor':i===1?'Supporting Actor':'Lead Actress'}));changed=true;}
+ const crewPlan=[['Director',pools.directors,'director'],['Writer',pools.writers,'writer'],['Cinematographer',pools.cinematographers,'cinematographer'],['Composer',pools.composers,'composer'],['Editor',pools.editors,'editor']];
+ if(!f.crew.length){crewPlan.forEach(([role,pool,key])=>{const name=pick(pool,f.id+'|'+key);if(name&&!f.crew.some(x=>String(x.name||x)===name))f.crew.push({name,role})});changed=true;}
+ if(!f.characters.length&&f.cast.length){f.characters=f.cast.slice(0,3).map((c,i)=>({id:`${f.id}-char-${i+1}`,name:i===0?'Lead Character':i===1?'Supporting Character':'Lead Female Character',position:i===0?'Lead':i===1?'Support':'Lead',role:c.role||'Cast',gender:/Actress|Female/i.test(c.role||'')?'female':'male',cast:c.name,castRole:c.role,castContract:null}));changed=true;}
+ if(changed){f.credits=[...f.cast.map(c=>({name:typeof c==='string'?c:c.name,role:typeof c==='string'?'Cast':c.role||'Cast',kind:'cast'})),...f.crew.map(c=>({name:typeof c==='string'?c:c.name,role:typeof c==='string'?'Crew':c.role||'Crew',kind:'crew'}))];f.history=Array.isArray(f.history)?f.history:[];f.history.push({week:g.week,year:g.year,event:'Cast & crew attached',detail:`${f.cast.length} cast and ${f.crew.length} crew credits are part of the permanent industry record.`});}
+ return changed;
+}
 function canonicalize(g){
  const c=ensure(g),fs=ensureCollections(g),byId=new Map(fs.map(f=>[String(f.id),f])),s=slate(g),events=[];
  s.forEach(r=>{
@@ -63,6 +80,7 @@ function canonicalize(g){
      fs.push(f);byId.set(id,f);events.push({type:'film-created',filmId:id,studio:r.studio,title:r.title});
    }
    Object.assign(f,{title:r.title,studio:r.studio,studioName:r.studio,studioId:r.studioId||f.studioId,genre:r.genre,scale:r.scale,strength:num(r.strength,f.strength||70),releaseWeek:num(r.releaseWeek,f.releaseWeek||1),releaseYear:num(r.releaseYear,f.releaseYear||g.year),rivalStudio:r.studio,isRival:true});
+   ensureRivalCredits(g,f);
    if(result&&Object.keys(result).length){
      ['budget','quality','audience','starPower','marketingScore','hype','boxOffice','finalBoxOffice','prestige','totalStreams','openingScore','legs','outcome'].forEach(k=>{if(result[k]!==undefined)f[k]=result[k]});
      if(Array.isArray(result.weeklyBoxOffice))f.weeklyBoxOffice=result.weeklyBoxOffice;
