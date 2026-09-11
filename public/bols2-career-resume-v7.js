@@ -1,0 +1,18 @@
+/* BOLS2 Career Resume v7: boot resolver + unified Continue Your Save bridge. */
+(function(){
+ 'use strict';
+ const AUTO='BOLS2_AUTOSAVE_V2',LEGACY='bol2_saves_v1';
+ const tick=s=>((+s?.year||1)-1)*52+(+s?.week||1);
+ const clone=s=>{try{return JSON.parse(JSON.stringify(s))}catch{return null}};
+ const studioName=s=>String((s?.studio&&s.studio.name)||s?.studioName||s?.name||'Unnamed Studio');
+ const key=s=>String((s?.studio&&(s.studio.id||s.studio.studioId||s.studio.name))||s?.studioName||s?.name||'default');
+ const read=k=>{try{return JSON.parse(localStorage.getItem(k)||'null')}catch{return null}};
+ function locals(){const out=[];const a=read(AUTO);if(a?.state)out.push({state:a.state,source:'AUTOSAVE',savedAt:a.savedAt||'',slot:+a.state.saveSlot||+a.state.slot||1});const l=read(LEGACY);if(Array.isArray(l))l.forEach((s,i)=>s&&out.push({state:s,source:'LOCAL SLOT '+(i+1),savedAt:s.updatedAt||'',slot:i+1}));return out}
+ function bestLocal(base){const k=key(base);return locals().filter(x=>key(x.state)===k).sort((a,b)=>tick(b.state)-tick(a.state)||String(b.savedAt).localeCompare(String(a.savedAt)))[0]||null}
+ async function cloud(){try{await window.BOLS2Cloud?.init?.();const r=await window.BOLS2Cloud?.list?.();const rows=Array.isArray(r)?r:(r?.data||r?.rows||[]);const base=window.__BOL_STATE__||window.state;if(!base)return null;const k=key(base),n=studioName(base);return rows.filter(x=>x?.game_state&&(key(x.game_state)===k||studioName(x.game_state)===n)).sort((a,b)=>tick(b.game_state)-tick(a.game_state)||Number(b.game_revision||0)-Number(a.game_revision||0))[0]||null}catch(e){console.warn('[BOLS2 Resume v7] cloud',e);return null}}
+ function apply(s){const c=clone(s);if(!c)return false;const live=window.__BOL_STATE__||window.state;if(live&&typeof live==='object'){Object.keys(live).forEach(k=>{try{delete live[k]}catch{}});Object.assign(live,c);window.state=live;window.__BOL_STATE__=live;window.__BOL_CURRENT_STATE__=live;try{window.start?.(live)}catch{}}else{window.state=c;window.__BOL_STATE__=c;window.__BOL_CURRENT_STATE__=c;try{window.start?.(c)}catch{}}return true}
+ async function resolve(){const base=window.__BOL_STATE__||window.state;if(!base)return null;const lc=bestLocal(base),cc=await cloud();const winner=[base,lc?.state,cc?.game_state].filter(Boolean).sort((a,b)=>tick(b)-tick(a))[0];if(winner&&tick(winner)>tick(base)){apply(winner);try{window.toast?.('Career recovered — Week '+winner.week+' · Year '+winner.year)}catch{}}window.__BOLS2_CAREER_TICK__=tick(window.__BOL_STATE__||base);return window.__BOL_STATE__||base}
+ function open(){return window.__BOLS2_OPEN_LOAD_V6__?.()||false}
+ function boot(){if(window.__BOLS2_RESUME_V7_BOOTED__)return;window.__BOLS2_RESUME_V7_BOOTED__=true;document.addEventListener('click',e=>{const el=e.target?.closest?.('button,a,[role="button"]');if(!el)return;const text=(el.textContent||'').replace(/\s+/g,' ').trim().toLowerCase();if(text.includes('continue your save')||text.includes('continue save')||text==='resume career'||text==='resume'){e.preventDefault();e.stopImmediatePropagation();resolve().finally(()=>{const s=window.__BOL_STATE__||window.state;if(s){try{window.start?.(s)}catch{}}});}else if(text.includes('load your saves')||text.includes('load studio')||text.includes('load save')){e.preventDefault();e.stopImmediatePropagation();open();}},true);setTimeout(resolve,1800)}
+ window.BOLS2CareerResumeV7={resolve,open,bestLocal,locals,tick};boot();
+})();
