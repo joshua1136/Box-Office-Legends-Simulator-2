@@ -124,9 +124,16 @@
     return await sb.from('bols2_saves').delete().eq('id',current.data.id);
   }
 
-  async function saveCloud(reason,slot=null){
+  let saveQueue=Promise.resolve();
+  function queueCloudSave(reason,slot){
+    const run=saveQueue.then(()=>saveCloudNow(reason,slot));
+    saveQueue=run.catch(()=>{});
+    return run;
+  }
+
+  async function saveCloudNow(reason,slot=null){
     const s=state();
-    if(!s || saving) return {ok:false,skipped:true};
+    if(!s) return {ok:false,skipped:true};
     const targetSlot=Math.max(1,Math.min(SLOT_COUNT,Number(slot||slotForState(s))||1));
     s.saveSlot=targetSlot;
     const copy=clone(s);
@@ -235,7 +242,7 @@
     const original=window.saveCurrent;
     const wrapped=function(){
       let result;
-      try{result=original.apply(this,arguments);}finally{saveCloud('manual-save',slotForState(state()));}
+      try{result=original.apply(this,arguments);}finally{queueCloudSave('manual-save',slotForState(state()));}
       return result;
     };
     wrapped.__bolsCloudWrapped=true;
@@ -248,12 +255,12 @@
       const el=ev.target&&ev.target.closest?ev.target.closest('button,a,[role="button"]'):null;
       if(!el)return;
       const text=(el.textContent||'').replace(/\s+/g,' ').trim().toLowerCase();
-      if(text.includes('save game')||text.includes('save your studio')) saveCloud('save-button');
-      if(text.includes('main menu')||text.includes('return safely')) saveCloud('main-menu-exit');
+      if(text.includes('save game')||text.includes('save your studio')) queueCloudSave('save-button',slotForState(state()));
+      if(text.includes('main menu')||text.includes('return safely')) queueCloudSave('main-menu-exit',slotForState(state()));
       if(text.includes('load studio')||text.includes('load save')) setTimeout(()=>restoreCloudIfNewer(true),700);
     },true);
-    window.addEventListener('pagehide',()=>saveCloud('pagehide'));
-    document.addEventListener('visibilitychange',()=>{if(document.hidden)saveCloud('background');});
+    window.addEventListener('pagehide',()=>queueCloudSave('pagehide',slotForState(state())));
+    document.addEventListener('visibilitychange',()=>{if(document.hidden)queueCloudSave('background',slotForState(state()));});
   }
 
   async function boot(){
@@ -273,8 +280,8 @@
   window.BOLS2Cloud={
     init:boot,
     auth:ensureAuth,
-    save:saveCloud,
-    saveSlot:(slot,reason='manual-save')=>saveCloud(reason,slot),
+    save:(reason,slot)=>queueCloudSave(reason,slot),
+    saveSlot:(slot,reason='manual-save')=>queueCloudSave(reason,slot),
     deleteSlot:(slot)=>deleteCloudSlot(slot),
     load:()=>restoreCloudIfNewer(true),
     loadSlot:(slot)=>restoreCloudIfNewer(true,slot),
@@ -293,7 +300,7 @@
     const fp=fingerprint(s);
     if(ready && fp && fp!==lastFingerprint){
       lastFingerprint=fp;
-      saveCloud('weekly-state-change',slotForState(s));
+      queueCloudSave('weekly-state-change',slotForState(s));
     }
   },1200);
 })();
