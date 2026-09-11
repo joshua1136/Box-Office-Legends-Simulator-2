@@ -62,6 +62,7 @@
       simulator(source);
     }catch(err){
       document.querySelector('.weeklyModal')?.remove();
+    document.querySelector('.studioReportModal')?.remove();
       restoreGlobals(previousGlobals.state||state);
       window.__BOL_CURRENT_STATE__=previousGlobals.current||state;
       window.saveCurrent=previousGlobals.save;
@@ -72,14 +73,21 @@
     restoreGlobals(previousGlobals.state||state);
     window.__BOL_CURRENT_STATE__=previousGlobals.current||state;
 
-    const modal=document.querySelector('.weeklyModal');
-    if(!modal)throw new Error('Weekly simulation completed without producing a report.');
-    const netNode=modal.querySelector('.reportGrid div:nth-child(4) b');
+    const legacyModal=document.querySelector('.weeklyModal');
+    if(!legacyModal)throw new Error('Weekly simulation backend completed without producing simulation output.');
+    const netNode=legacyModal.querySelector('.reportGrid div:nth-child(4) b');
     const net=parseMoneyText(netNode?.textContent||'0');
+    // The legacy renderer is no longer the player-facing report. We only borrow
+    // its already-computed weekly result, then throw its UI away completely.
+    legacyModal.remove();
     transaction.nextState=source;
     transaction.net=Number.isFinite(net)?net:0;
     transaction.reportReady=true;
     transaction.status='reporting';
+    const report=window.BOLS2StudioReport;
+    if(!report||typeof report.render!=='function')throw new Error('New Studio Report renderer is unavailable.');
+    const modal=report.render(source,fromWeek,transaction.net);
+    if(!modal)throw new Error('Studio Report renderer returned no report.');
     transaction.modal=modal;
     bindReport(modal,transaction);
     return transaction;
@@ -110,6 +118,7 @@
     window.__BOL_STATE__=actual;
     window.__BOL_CURRENT_STATE__=actual;
     document.querySelector('.weeklyModal')?.remove();
+    document.querySelector('.studioReportModal')?.remove();
     busy=false;
     transaction=null;
     safe('dashboard render',()=>typeof window.start==='function'&&window.start(actual));
@@ -122,7 +131,7 @@
     const tx=transaction;
     busy=true;
     tx.status='committing';
-    const button=tx.modal?.querySelector('#continueWeek');
+    const button=tx.modal?.querySelector('#continueStudioReport');
     if(button){button.disabled=true;button.setAttribute('aria-busy','true');button.textContent='ADVANCING…'}
 
     const live=tx.sourceState;
@@ -160,6 +169,7 @@
           window.__BOL_STATE__=live;window.__BOL_CURRENT_STATE__=live;
           safe('recovery save',()=>window.saveCurrent?.(live,true));
           document.querySelector('.weeklyModal')?.remove();
+          document.querySelector('.studioReportModal')?.remove();
           busy=false;transaction=null;
           safe('recovery dashboard',()=>window.start?.(live));
           return true;
@@ -171,13 +181,13 @@
 
   function bindReport(modal,tx){
     if(!modal||!tx)return;
-    const button=modal.querySelector('#continueWeek');
+    const button=modal.querySelector('#continueStudioReport');
     if(!button)return;
     button.dataset.weeklyEngineV2='1';
     button.onclick=(ev)=>{ev?.preventDefault?.();ev?.stopPropagation?.();commit()};
     // Report enhancements must not replace ownership of Continue.
     setTimeout(()=>{
-      const current=tx.modal?.querySelector('#continueWeek');
+      const current=tx.modal?.querySelector('#continueStudioReport');
       if(current&&current.dataset.weeklyEngineV2!=='1'){
         current.dataset.weeklyEngineV2='1';
         current.onclick=(ev)=>{ev?.preventDefault?.();ev?.stopPropagation?.();commit()};
@@ -191,6 +201,7 @@
       console.error('[BOLS2 Weekly] simulation failed',err);
       transaction=null;busy=false;
       document.querySelector('.weeklyModal')?.remove();
+      document.querySelector('.studioReportModal')?.remove();
       safe('simulation error toast',()=>window.toast?.('⚠️ Weekly simulation failed. Your current week is safe. Try again.'));
       return null;
     }
