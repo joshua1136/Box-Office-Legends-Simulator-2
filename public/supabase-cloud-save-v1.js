@@ -125,14 +125,14 @@
   }
 
   let saveQueue=Promise.resolve();
-  function queueCloudSave(reason,slot){
-    const run=saveQueue.then(()=>saveCloudNow(reason,slot));
+  function queueCloudSave(reason,slot,sourceState=null){
+    const run=saveQueue.then(()=>saveCloudNow(reason,slot,sourceState));
     saveQueue=run.catch(()=>{});
     return run;
   }
 
-  async function saveCloudNow(reason,slot=null){
-    const s=state();
+  async function saveCloudNow(reason,slot=null,sourceState=null){
+    const s=sourceState || state();
     if(!s) return {ok:false,skipped:true};
     const targetSlot=Math.max(1,Math.min(SLOT_COUNT,Number(slot||slotForState(s))||1));
     s.saveSlot=targetSlot;
@@ -282,6 +282,7 @@
     auth:ensureAuth,
     save:(reason,slot)=>queueCloudSave(reason,slot),
     saveSlot:(slot,reason='manual-save')=>queueCloudSave(reason,slot),
+    saveState:(sourceState,slot=1,reason='weekly-autosave')=>queueCloudSave(reason,slot,sourceState),
     deleteSlot:(slot)=>deleteCloudSlot(slot),
     load:()=>restoreCloudIfNewer(true),
     loadSlot:(slot)=>restoreCloudIfNewer(true,slot),

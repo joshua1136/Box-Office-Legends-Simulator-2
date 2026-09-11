@@ -32,7 +32,13 @@ function localCommit(s,reason='weekly-autosave'){
  return true;
 }
 async function cloudSave(s,reason='weekly-autosave'){
- try{if(window.BOLS2Cloud?.saveSlot){const slot=Math.max(1,Math.min(SLOTS,slotFor(s)));return await Promise.race([window.BOLS2Cloud.saveSlot(slot,reason),new Promise(r=>setTimeout(()=>r({ok:false,skipped:true,reason:'timeout'}),2500))])}}catch(e){console.warn('[BOLS2 Save V5] cloud save failed',e)}
+ try{
+  const slot=Math.max(1,Math.min(SLOTS,slotFor(s)));
+  const task=window.BOLS2Cloud?.saveState
+    ? window.BOLS2Cloud.saveState(s,slot,reason)
+    : window.BOLS2Cloud?.saveSlot?.(slot,reason);
+  if(task)return await Promise.race([task,new Promise(r=>setTimeout(()=>r({ok:false,skipped:true,reason:'timeout'}),5000))]);
+ }catch(e){console.warn('[BOLS2 Save V5] cloud save failed',e)}
  return {ok:false,skipped:true};
 }
 async function save(reason='manual-save',s=state()){
