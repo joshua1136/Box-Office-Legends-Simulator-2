@@ -1,2 +1,0 @@
-/* Retired weekly-report wrapper. Industry event UI is now orchestrated by weekly-controller-v1.js so it cannot compete with the core report advance handler. */
-(()=>{window.__BOL_INDUSTRY_EVENTS_WRAPPER_RETIRED=true;})();

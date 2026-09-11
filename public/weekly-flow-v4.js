@@ -1,2 +1,0 @@
-/* Retired. BOLS2 now uses one weekly progression controller. Kept as a harmless compatibility stub so old deployments cannot install a competing handler. */
-(()=>{window.__BOL_WEEKLY_FLOW_V4_RETIRED=true;})();

@@ -1,2 +1,0 @@
-/* BOLS2 weekly-flow repair: legacy connector disabled. Event System v3 is launched by weekly-flow-v4 and completion returns directly to the core weekly advance handler. */
-(()=>{ window.__weeklyEventConnectorDisabled = true; })();
