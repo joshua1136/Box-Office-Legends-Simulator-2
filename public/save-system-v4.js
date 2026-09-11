@@ -101,7 +101,9 @@
   document.addEventListener('click',function(ev){
     const el=ev.target?.closest?.('button,[role="button"],a'); if(!el)return;
     const label=buttonLabel(el);
-    if(/load your save|continue|load save/.test(label)){
+    // IMPORTANT: never intercept a generic CONTINUE button. The weekly engine owns
+    // the Studio Report CONTINUE action; this save layer only owns explicit load actions.
+    if(/load your save|load save|load studio/.test(label)){
       ev.preventDefault();ev.stopImmediatePropagation();
       loadLatest();
       return;
