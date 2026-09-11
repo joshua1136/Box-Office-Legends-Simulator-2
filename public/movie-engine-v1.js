@@ -120,7 +120,7 @@
   };
   window.BOLS2MovieEngine={clamp,conceptPotential,craft,synergy,starPower,outlook,apply,weeklyRetention,syncAll,format,renderOutlook};
   window.addEventListener('DOMContentLoaded',observe,{once:true});setTimeout(observe,0);
-  // The next-week pipeline calls the public report function, so this keeps legacy weekly processing synchronized with the new engine.
-  const oldReport=window.showWeeklyReport;
-  if(oldReport&&!window.__BOLS2_ENGINE_REPORT_PATCHED__){window.__BOLS2_ENGINE_REPORT_PATCHED__=true;window.showWeeklyReport=(state)=>{syncAll(state);return oldReport(state);};}
+  // Weekly progression is owned exclusively by weekly-engine-v3.js.
+  // Do not wrap or replace window.showWeeklyReport here; movie calculations remain
+  // available to the weekly simulation backend without owning the calendar pipeline.
 })();
