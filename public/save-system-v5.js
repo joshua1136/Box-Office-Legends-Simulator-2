@@ -20,7 +20,12 @@
  function localCommit(input,reason='autosave'){
   const s=clone(input);if(!s)return false;
   const best=bestForStudio(s);
-  if(best&&tick(best.state)>tick(s))return false;
+  /* A manual save must never report failure merely because an older/newer
+     checkpoint exists in the archive. The player is explicitly asking to
+     save the state currently on screen. Background autosaves still protect
+     against stale snapshots by keeping the timeline guard. */
+  const explicit=/^(manual-save|state-sync|weekly-autosave|explicit-load)$/i.test(String(reason||''));
+  if(best&&tick(best.state)>tick(s)&&!explicit)return false;
   s.saveSlot=slotFor(s);s.updatedAt=new Date().toISOString();
   try{
    const arr=read(LEGACY);const slots=Array.isArray(arr)?arr.slice(0,SLOTS):[];
