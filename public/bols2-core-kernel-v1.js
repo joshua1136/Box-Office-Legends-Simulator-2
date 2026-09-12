@@ -28,21 +28,38 @@
   }
   function persist(s,reason='checkpoint'){
     const c=clone(s); if(!valid(c))return false;
-    const current=newestForStudio(c);
-    if(current&&tick(current.state)>tick(c))return false;
     c.saveSlot=Math.max(1,Math.min(SLOTS,Number(c.saveSlot||c.slot)||1));
     c.updatedAt=new Date().toISOString();
+    /* IndexedDB is the authoritative career store. localStorage is only a compatibility
+       mirror, so a large career can never make the whole save operation fail. */
+    try{
+      if(window.BOLS2IndexedSave?.saveAutosave){
+        Promise.resolve(window.BOLS2IndexedSave.saveAutosave(c,reason)).catch(e=>console.warn('[BOLS2] authoritative local save failed',e));
+      }
+    }catch(e){console.warn('[BOLS2 Core] IndexedDB queue failed',e)}
     try{
       const arr=read(LEGACY); const slots=Array.isArray(arr)?arr.slice(0,SLOTS):[];
       const idx=c.saveSlot-1; const existing=slots[idx];
       if(!existing||!name(existing)||name(existing).toLowerCase()===name(c).toLowerCase()||tick(c)>=tick(existing))slots[idx]=c;
-      localStorage.setItem(LEGACY,JSON.stringify(slots));
-      localStorage.setItem(AUTO,JSON.stringify({version:8,reason,savedAt:c.updatedAt,state:c}));
-      return true;
-    }catch(e){console.warn('[BOLS2 Core] save failed',e);return false;}
+      try{localStorage.setItem(LEGACY,JSON.stringify(slots));}catch(e){console.warn('[BOLS2 Core] compatibility mirror unavailable',e)}
+      try{localStorage.setItem(AUTO,JSON.stringify({version:10,reason,savedAt:c.updatedAt,state:c}));}catch(e){console.warn('[BOLS2 Core] autosave mirror unavailable',e)}
+    }catch(e){console.warn('[BOLS2 Core] mirror update failed',e)}
+    return true;
   }
   function install(s){const c=clone(s);if(!valid(c))return false;const live=window.__BOL_STATE__||window.state;if(live&&typeof live==='object'){Object.keys(live).forEach(k=>{try{delete live[k]}catch{}});Object.assign(live,c);window.state=live;window.__BOL_STATE__=live;window.__BOL_CURRENT_STATE__=live;try{window.start?.(live)}catch(e){console.error('[BOLS2 Core] start failed',e)}}else{window.state=c;window.__BOL_STATE__=c;window.__BOL_CURRENT_STATE__=c;try{window.start?.(c)}catch(e){console.error('[BOLS2 Core] start failed',e)}}return true;}
-  function resume(){const current=window.__BOL_STATE__||window.state;const best=newestForStudio(current);if(!best)return false;/* Resume should always mount the persisted winner, not reuse a possibly stale in-memory object. */install(best.state);return true;}
+  async function resume(){
+    const current=window.__BOL_STATE__||window.state;
+    /* IndexedDB wins over the compatibility mirror whenever it has a newer checkpoint. */
+    try{
+      if(window.BOLS2IndexedSave?.bestForStudio){
+        const durable=await window.BOLS2IndexedSave.bestForStudio(current||{});
+        if(durable&&(!current||tick(durable)>=tick(current))){install(durable);return true;}
+      }
+    }catch(e){console.warn('[BOLS2] durable resume failed',e)}
+    const best=newestForStudio(current);
+    if(!best)return false;
+    install(best.state);return true;
+  }
   let lastSig='';
   const signature=s=>{const c=clone(s);if(!c)return '';delete c.updatedAt;return JSON.stringify(c)};
   function checkpoint(reason='progress'){const s=window.__BOL_STATE__||window.state;if(!valid(s))return false;const sig=signature(s);if(sig===lastSig)return true;const ok=persist(s,reason);if(ok)lastSig=sig;return ok;}
@@ -64,7 +81,7 @@
       const el=ev.target?.closest?.('#continue');
       if(!el)return;
       ev.preventDefault();ev.stopImmediatePropagation();
-      if(!resume())window.toast?.('No saved studio yet.');
+      resume().then(ok=>{if(!ok)window.toast?.('No saved studio yet.')}).catch(()=>window.toast?.('Could not resume the saved career.'));
     },true);
     document.addEventListener('click',ev=>{
       const el=ev.target?.closest?.('#load');
@@ -95,7 +112,7 @@
     },true);
     window.addEventListener('pagehide',()=>checkpoint('page-exit'));
     document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')checkpoint('background-save')});
-    setInterval(()=>checkpoint('progress-autosave'),750);
+    setInterval(()=>checkpoint('progress-autosave'),3000);
   }
   /* Compatibility facade: older gameplay modules may still call BOLS2SaveV5.
      They now resolve to this one local-only save owner instead of a second engine. */
