@@ -47,7 +47,9 @@
  }
  function openLoad(){return window.__BOLS2_OPEN_LOAD_V6__?window.__BOLS2_OPEN_LOAD_V6__():false}
  function wire(){
-  document.addEventListener('click',ev=>{const el=ev.target?.closest?.('button,a,[role="button"]');if(!el)return;const t=(el.textContent||'').replace(/\s+/g,' ').trim().toLowerCase();if(t.includes('save game')||t.includes('save your studio'))save('manual-save');},true);
+  /* Explicit SAVE GAME clicks are owned by main.js/core-kernel. Do not watch button text here:
+     a text-based capture handler can fire on the confirmation button too and race the modal's
+     actual commit. Lifecycle events remain safe autosave boundaries. */
   window.addEventListener('pagehide',()=>save('page-exit'));
   window.addEventListener('beforeunload',()=>save('page-exit'));
   document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')save('background-save')});
