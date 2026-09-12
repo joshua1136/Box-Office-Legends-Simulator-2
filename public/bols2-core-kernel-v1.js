@@ -74,7 +74,7 @@
     document.addEventListener('click',ev=>{
       const el=ev.target?.closest?.('#save');
       if(!el)return;
-      ev.preventDefault();ev.stopImmediatePropagation();checkpoint('manual-save');window.toast?.('Studio saved on this device.');
+      ev.preventDefault();ev.stopImmediatePropagation();const s=window.__BOL_STATE__||window.state;if(window.confirmSaveGame&&s){window.confirmSaveGame(s);return;}checkpoint('manual-save');window.toast?.('Studio saved on this device.');
     },true);
     document.addEventListener('click',ev=>{
       const el=ev.target?.closest?.('#next');
