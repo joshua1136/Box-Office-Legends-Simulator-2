@@ -13,7 +13,8 @@
   const l=read(LEGACY);if(Array.isArray(l))l.forEach((x,i)=>x&&out.push({state:x,source:'LOCAL SLOT '+(i+1),savedAt:x.updatedAt||x.savedAt||''}));
   return out;
  };
- const bestForStudio=studio=>{let best=null;candidates().forEach(c=>{if(name(c.state)!==name(studio))return;if(!best||tick(c.state)>tick(best.state)||(tick(c.state)===tick(best.state)&&String(c.savedAt)>String(best.savedAt)))best=c});return best};
+ const bestForStudio=studio=>{let best=null;candidates().forEach(c=>{if(name(c.state).toLowerCase()!==name(studio).toLowerCase())return;if(!best||tick(c.state)>tick(best.state)||(tick(c.state)===tick(best.state)&&String(c.savedAt)>String(best.savedAt)))best=c});return best};
+ const nextFreeSlot=s=>{const currentName=name(s).toLowerCase();const arr=read(LEGACY);const slots=Array.isArray(arr)?arr:[];for(let i=0;i<SLOTS;i++){const existing=slots[i];if(!existing||!name(existing)||name(existing).toLowerCase()===currentName)return i+1;}return null};
  const signature=s=>{try{const c=clone(s);if(!c)return '';delete c.updatedAt;delete c.__localSaveSignature;return JSON.stringify(c)}catch{return ''}};
  let lastSignature='';let saving=false;let initialized=false;
  function localCommit(input,reason='autosave'){
