@@ -77,7 +77,20 @@
     document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')checkpoint('background-save')});
     setInterval(()=>checkpoint('progress-autosave'),750);
   }
-  window.BOLS2Core={version:1,tick,candidates,newest,newestForStudio,persist,install,resume,checkpoint,openLoad};
+  /* Compatibility facade: older gameplay modules may still call BOLS2SaveV5.
+     They now resolve to this one local-only save owner instead of a second engine. */
+  window.BOLS2SaveV5={
+    version:8,
+    save:(reason='autosave',s)=>{const target=s||window.__BOL_STATE__||window.state;return target?persist(target,reason):false;},
+    localCommit:(s,reason='state-sync')=>persist(s,reason),
+    recover:resume,
+    candidates,
+    bestForStudio:newestForStudio,
+    openLoad,
+    detectAndSave:checkpoint,
+    slotFor:s=>Math.max(1,Math.min(SLOTS,Number(s?.saveSlot||s?.slot)||1))
+  };
+  window.BOLS2Core={version:2,tick,candidates,newest,newestForStudio,persist,install,resume,checkpoint,openLoad};
   window.__BOLS2_CORE_READY__=true;
   bind();
 })();
