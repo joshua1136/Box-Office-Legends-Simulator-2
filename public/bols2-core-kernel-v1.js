@@ -15,8 +15,16 @@
   function newest(){return candidates().sort((a,b)=>tick(b.state)-tick(a.state)||b.savedAt.localeCompare(a.savedAt))[0]||null;}
   function newestForStudio(studio){
     const n=name(studio); const all=candidates();
+    /* Never trust the currently mounted state when selecting a save. A stale
+       in-memory object (for example Week 13 after the player reached Week 15)
+       must not make Continue/Load settle on the stale copy. Prefer the newest
+       persisted snapshot by studio, then by timeline. */
     const same=n?all.filter(x=>name(x.state).toLowerCase()===n.toLowerCase()):[];
-    return (same.length?same:all).sort((a,b)=>tick(b.state)-tick(a.state)||b.savedAt.localeCompare(a.savedAt))[0]||null;
+    const pool=same.length?same:all;
+    return pool.sort((a,b)=>{
+      const aw=tick(a.state),bw=tick(b.state);
+      return bw-aw||String(b.savedAt).localeCompare(String(a.savedAt));
+    })[0]||null;
   }
   function persist(s,reason='checkpoint'){
     const c=clone(s); if(!valid(c))return false;
@@ -34,10 +42,22 @@
     }catch(e){console.warn('[BOLS2 Core] save failed',e);return false;}
   }
   function install(s){const c=clone(s);if(!valid(c))return false;const live=window.__BOL_STATE__||window.state;if(live&&typeof live==='object'){Object.keys(live).forEach(k=>{try{delete live[k]}catch{}});Object.assign(live,c);window.state=live;window.__BOL_STATE__=live;window.__BOL_CURRENT_STATE__=live;try{window.start?.(live)}catch(e){console.error('[BOLS2 Core] start failed',e)}}else{window.state=c;window.__BOL_STATE__=c;window.__BOL_CURRENT_STATE__=c;try{window.start?.(c)}catch(e){console.error('[BOLS2 Core] start failed',e)}}return true;}
-  function resume(){const current=window.__BOL_STATE__||window.state;const best=newestForStudio(current);if(!best)return false;const shouldLoad=!valid(current)||tick(best.state)>tick(current)||!name(current);if(shouldLoad)install(best.state);else{window.__BOL_STATE__=current;window.state=current;try{window.start?.(current)}catch{}}return true;}
+  function resume(){const current=window.__BOL_STATE__||window.state;const best=newestForStudio(current);if(!best)return false;/* Resume should always mount the persisted winner, not reuse a possibly stale in-memory object. */install(best.state);return true;}
   let lastSig='';
   const signature=s=>{const c=clone(s);if(!c)return '';delete c.updatedAt;return JSON.stringify(c)};
   function checkpoint(reason='progress'){const s=window.__BOL_STATE__||window.state;if(!valid(s))return false;const sig=signature(s);if(sig===lastSig)return true;const ok=persist(s,reason);if(ok)lastSig=sig;return ok;}
+  function repairStaleSlot(){
+    const a=read(AUTO); if(!valid(a?.state))return false;
+    const slots=read(LEGACY); if(!Array.isArray(slots))return false;
+    const as=a.state, idx=Math.max(0,Math.min(SLOTS-1,Number(as.saveSlot||as.slot)-1));
+    const cur=slots[idx];
+    if(!cur||tick(as)>tick(cur)||(tick(as)===tick(cur)&&String(a.savedAt||'')>String(cur.updatedAt||cur.savedAt||''))){
+      as.saveSlot=idx+1;
+      slots[idx]=as;
+      try{localStorage.setItem(LEGACY,JSON.stringify(slots));return true}catch{}
+    }
+    return false;
+  }
   function openLoad(){return window.__BOLS2_OPEN_LOAD_V6__?.()||false;}
   function bind(){
     document.addEventListener('click',ev=>{
