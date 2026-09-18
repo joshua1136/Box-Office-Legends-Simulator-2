@@ -106,7 +106,15 @@ for(const [name,ids] of Object.entries(aliases)){
  const p=Object.values(window.INDUSTRY_PEOPLE||{}).flat().find(x=>x.name===name);
  if(p){p.realPersonId='person_'+name.toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_|_$/g,'');p.realFilmIds=ids;p.source='real-world-reference';}
 }
-function realFilmsFor(name){const ids=aliases[name]||[];return ids.map(id=>byId[id]).filter(Boolean)}
+function normalizeTalentName(name){return String(name||'').trim().replace(/\\s+/g,' ').toLowerCase()}
+function realFilmsFor(name){
+ const key=normalizeTalentName(name);
+ const exact=Object.keys(aliases).find(n=>normalizeTalentName(n)===key);
+ const ids=aliases[exact||name]||[];
+ return ids.map(id=>byId[id]).filter(Boolean);
+}
+window.__BOLS_REAL_FILM_CATALOG__=catalog;
+window.__BOLS_REAL_FILM_ALIASES__=aliases;
 function matchPeopleCredits(f){const out=[];for(const [name,ids] of Object.entries(aliases))if(ids.includes(f.id))out.push(name);return out}
 function renderRealFilmModal(f){
  const old=document.querySelector('.realFilmographyModal');if(old)old.remove();
