@@ -6,5 +6,28 @@ function rival(s,studio){const name=studio.name||'Rival Studio',strength=Number(
 window.BOLSProfileSystem={talent,rival};
 const oldReal=window.BOLSRealFilmography;if(oldReal){oldReal.openRealAwareTalentProfile=(s,p,c)=>talent(s,p,c)}
 window.addEventListener('BOLS2_STARTUP_READY',()=>{if(window.BOLSRealFilmography)window.BOLSRealFilmography.openRealAwareTalentProfile=(s,p,c)=>talent(s,p,c)});
+/* FINAL PROFILE ROUTING: this file is loaded after the static shell but startup modules can later wrap the same APIs.
+   Keep this presentation layer last by re-installing after BOLS2_STARTUP_READY and on window load. */
+function installProfileRouting(){
+  const wrapTalent=window.showTalent;
+  if(wrapTalent&&!wrapTalent.__BOLS_PROFILE_WRAPPED){
+    const wrapped=function(s,t,f,c){
+      if(window.__BOLS_REAL_PROFILE_BYPASS)return wrapTalent(s,t,f,c);
+      return talent(s,{name:t?.[0],role:t?.[1],talent:t?.[2],fee:(Number(t?.[3])||0)*1e6,tier:t?.[4],popularity:t?.[5],potential:t?.[6],genres:t?.[7]},f?{id:f,genre:(s?.films||[]).find(x=>String(x.id)===String(f))?.genre}:null);
+    };
+    wrapped.__BOLS_PROFILE_WRAPPED=true;
+    window.showTalent=wrapped;
+  }
+  const wrapRival=window.showRivalFilmDetails;
+  if(wrapRival&&!wrapRival.__BOLS_PROFILE_WRAPPED){
+    const wrapped=function(s,f,parent){return rival(s,f);};
+    wrapped.__BOLS_PROFILE_WRAPPED=true;
+    window.showRivalFilmDetails=wrapped;
+  }
+  if(window.BOLSRealFilmography)window.BOLSRealFilmography.openRealAwareTalentProfile=(s,p,c)=>talent(s,p,c);
+}
+if(window.__BOLS2_STARTUP_READY__) installProfileRouting();
+window.addEventListener('BOLS2_STARTUP_READY',()=>{installProfileRouting();setTimeout(installProfileRouting,100);});
+window.addEventListener('load',()=>setTimeout(installProfileRouting,300));
 document.addEventListener('click',ev=>{const b=ev.target?.closest?.('[data-industry-studio]');if(!b)return;const name=b.dataset.industryStudio,studio=(window.INDUSTRY_STUDIOS||[]).find(x=>x.name===name);if(!studio)return;ev.preventDefault();ev.stopImmediatePropagation();rival(window.__BOL_STATE__||window.state||window.gameState,studio)},true);
 })();
