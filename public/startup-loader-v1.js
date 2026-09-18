@@ -9,7 +9,7 @@ const load=(src)=>new Promise(resolve=>{const s=document.createElement('script')
 (async()=>{
  for(let i=0;i<queue.length;i++){
    await load(queue[i]);
-   if(i===criticalCount-1) window.dispatchEvent(new CustomEvent('BOLS2_CORE_READY'));
+   if(i===criticalCount-1){ window.__BOLS2_CORE_READY__=true; window.dispatchEvent(new CustomEvent('BOLS2_CORE_READY')); }
    if(i>=criticalCount-1) await new Promise(r=>requestAnimationFrame(r));
  }
  window.__BOLS2_STARTUP_READY__=true;
