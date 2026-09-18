@@ -1,0 +1,9 @@
+/* BOLS2 Performance Layer — visual identity unchanged, expensive motion reduced only when the runtime marks a device as constrained. */
+html,body{overscroll-behavior-x:none;-webkit-tap-highlight-color:transparent}
+img,video{max-width:100%;height:auto}
+.bols2-hidden{display:none!important}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;scroll-behavior:auto!important}}
+html.bols-low-performance *,html.bols-low-performance *::before,html.bols-low-performance *::after{animation-duration:.08s!important;transition-duration:.08s!important}
+html.bols-low-performance [style*="backdrop-filter"],html.bols-low-performance .backdrop-filter{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+html.bols-low-performance .particle,.html.bols-low-performance .particles,.html.bols-low-performance [class*="particle"]{display:none!important}
+html.bols-low-performance .glow,.html.bols-low-performance [class*="glow"]{filter:none!important}
