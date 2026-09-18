@@ -9,6 +9,17 @@ window.addEventListener('BOLS2_STARTUP_READY',()=>{if(window.BOLSRealFilmography
 /* FINAL PROFILE ROUTING: this file is loaded after the static shell but startup modules can later wrap the same APIs.
    Keep this presentation layer last by re-installing after BOLS2_STARTUP_READY and on window load. */
 function installProfileRouting(){
+  /* The real entry point is BOLSDeepProfiles.openTalentProfile, not only window.showTalent.
+     Several older profile modules expose their UI through that object. Own every public profile route. */
+  if(window.BOLSDeepProfiles){
+    window.BOLSDeepProfiles.openTalentProfile=(s,t,c)=>talent(s,t,c);
+  }
+  if(window.BOLSRealismUI){
+    window.BOLSRealismUI.talentProfile=(s,t,c)=>talent(s,t,c);
+  }
+  if(window.BOLSRealFilmography){
+    window.BOLSRealFilmography.openRealAwareTalentProfile=(s,t,c)=>talent(s,t,c);
+  }
   const wrapTalent=window.showTalent;
   if(wrapTalent&&!wrapTalent.__BOLS_PROFILE_WRAPPED){
     const wrapped=function(s,t,f,c){
@@ -24,7 +35,6 @@ function installProfileRouting(){
     wrapped.__BOLS_PROFILE_WRAPPED=true;
     window.showRivalFilmDetails=wrapped;
   }
-  if(window.BOLSRealFilmography)window.BOLSRealFilmography.openRealAwareTalentProfile=(s,p,c)=>talent(s,p,c);
 }
 if(window.__BOLS2_STARTUP_READY__) installProfileRouting();
 window.addEventListener('BOLS2_STARTUP_READY',()=>{installProfileRouting();setTimeout(installProfileRouting,100);});
